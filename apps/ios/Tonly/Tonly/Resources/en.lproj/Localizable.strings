@@ -1,0 +1,89 @@
+"app.name" = "Tonly";
+
+"onboarding.subtitle" = "The fastest TON wallet powered by";
+"onboarding.create" = "Create Wallet";
+"onboarding.import" = "Import Wallet";
+
+"pin.set" = "Set Passcode";
+"pin.set.subtitle" = "You will use it to unlock your wallet";
+"pin.confirm" = "Confirm Passcode";
+"pin.confirm.subtitle" = "Enter the passcode again";
+"pin.enter" = "Enter Passcode";
+"pin.wrong" = "Wrong passcode";
+
+"seed.backup.title" = "Back Up Your Wallet";
+"seed.backup.subtitle" = "Your recovery phrase is the only way to restore your wallet if you lose access";
+"seed.display.title" = "Recovery Phrase";
+"seed.display.subtitle" = "Write down these words in order and keep them in a safe place";
+"seed.display.reveal" = "Tap to reveal your recovery phrase";
+"seed.verify.title" = "Verify Phrase";
+"seed.verify.subtitle" = "Select the correct word for each position";
+"seed.verify.wrong" = "Wrong word, try again";
+"seed.word" = "Word #%d";
+
+"import.title" = "Import Wallet";
+"import.subtitle" = "Enter your seed phrase to restore your wallet";
+"import.paste" = "Paste from Clipboard";
+"import.12words" = "12 Words";
+"import.24words" = "24 Words";
+
+"wallet.title" = "Wallet";
+"wallet.tokens" = "Tokens";
+"wallet.recent" = "Recent Activity";
+"wallet.no_transactions" = "No transactions yet";
+
+"tab.wallet" = "Wallet";
+"tab.nfts" = "NFTs";
+"tab.activity" = "Activity";
+"tab.settings" = "Settings";
+
+"send.title" = "Send";
+"send.recipient" = "Recipient";
+"send.amount" = "Amount";
+"send.available" = "Available: %@ TON";
+"send.max" = "Max";
+"send.button" = "Send TON";
+"send.auth_failed" = "Authentication failed";
+
+"receive.title" = "Receive";
+"receive.address" = "Your TON Address";
+"receive.copy" = "Copy Address";
+"receive.copied" = "Copied";
+
+"nft.title" = "NFTs";
+"nft.empty" = "No NFTs Yet";
+"nft.empty.subtitle" = "Your collectibles will appear here";
+"nft.send" = "Send NFT";
+
+"activity.title" = "Activity";
+"activity.empty" = "No Activity Yet";
+"activity.empty.subtitle" = "Send or receive TON to see your transactions here";
+"activity.received" = "Received";
+"activity.sent" = "Sent";
+"activity.completed" = "Completed";
+"activity.pending" = "Pending";
+"activity.copy_hash" = "Copy Transaction Hash";
+
+"settings.title" = "Settings";
+"settings.security" = "Security";
+"settings.faceid" = "Face ID";
+"settings.backup" = "Backup Seed Phrase";
+"settings.general" = "General";
+"settings.network" = "Network";
+"settings.mainnet" = "Mainnet";
+"settings.notifications" = "Notifications";
+"settings.about" = "About";
+"settings.terms" = "Terms of Service";
+"settings.privacy" = "Privacy Policy";
+"settings.version" = "Version";
+"settings.delete" = "Delete Wallet";
+"settings.delete.title" = "Delete Wallet?";
+"settings.delete.message" = "Make sure you have backed up your seed phrase. This cannot be undone.";
+
+"common.continue" = "Continue";
+"common.cancel" = "Cancel";
+"common.done" = "Done";
+"common.delete" = "Delete";
+"common.later" = "Later";
+"common.import" = "Import";
+"common.copied" = "Copied";

@@ -1,0 +1,89 @@
+"app.name" = "Tonly";
+
+"onboarding.subtitle" = "Самый быстрый TON кошелёк на базе";
+"onboarding.create" = "Создать кошелёк";
+"onboarding.import" = "Импортировать кошелёк";
+
+"pin.set" = "Задайте пин-код";
+"pin.set.subtitle" = "Он будет использоваться для разблокировки";
+"pin.confirm" = "Подтвердите пин-код";
+"pin.confirm.subtitle" = "Введите пин-код ещё раз";
+"pin.enter" = "Введите пин-код";
+"pin.wrong" = "Неверный пин-код";
+
+"seed.backup.title" = "Сохраните секретный ключ";
+"seed.backup.subtitle" = "Без него вы не сможете получить доступ к кошельку";
+"seed.display.title" = "Секретный ключ";
+"seed.display.subtitle" = "Запишите эти слова с их номерами и сохраните в надёжном месте";
+"seed.display.reveal" = "Нажмите чтобы показать фразу";
+"seed.verify.title" = "Проверка фразы";
+"seed.verify.subtitle" = "Выберите правильное слово для каждой позиции";
+"seed.verify.wrong" = "Неверное слово, попробуйте снова";
+"seed.word" = "Слово #%d";
+
+"import.title" = "Импорт кошелька";
+"import.subtitle" = "Введите секретную фразу для восстановления";
+"import.paste" = "Вставить из буфера";
+"import.12words" = "12 слов";
+"import.24words" = "24 слова";
+
+"wallet.title" = "Кошелёк";
+"wallet.tokens" = "Токены";
+"wallet.recent" = "Последние операции";
+"wallet.no_transactions" = "Нет транзакций";
+
+"tab.wallet" = "Кошелёк";
+"tab.nfts" = "NFT";
+"tab.activity" = "История";
+"tab.settings" = "Настройки";
+
+"send.title" = "Отправить";
+"send.recipient" = "Получатель";
+"send.amount" = "Сумма";
+"send.available" = "Доступно: %@ TON";
+"send.max" = "Макс";
+"send.button" = "Отправить TON";
+"send.auth_failed" = "Ошибка аутентификации";
+
+"receive.title" = "Получить";
+"receive.address" = "Ваш TON адрес";
+"receive.copy" = "Скопировать адрес";
+"receive.copied" = "Скопировано";
+
+"nft.title" = "NFT";
+"nft.empty" = "Нет NFT";
+"nft.empty.subtitle" = "Ваши коллекционные предметы появятся здесь";
+"nft.send" = "Отправить NFT";
+
+"activity.title" = "История";
+"activity.empty" = "Нет операций";
+"activity.empty.subtitle" = "Отправьте или получите TON чтобы увидеть историю";
+"activity.received" = "Получено";
+"activity.sent" = "Отправлено";
+"activity.completed" = "Выполнено";
+"activity.pending" = "В обработке";
+"activity.copy_hash" = "Скопировать хеш транзакции";
+
+"settings.title" = "Настройки";
+"settings.security" = "Безопасность";
+"settings.faceid" = "Face ID";
+"settings.backup" = "Резервная копия фразы";
+"settings.general" = "Основные";
+"settings.network" = "Сеть";
+"settings.mainnet" = "Основная сеть";
+"settings.notifications" = "Уведомления";
+"settings.about" = "О приложении";
+"settings.terms" = "Условия использования";
+"settings.privacy" = "Политика конфиденциальности";
+"settings.version" = "Версия";
+"settings.delete" = "Удалить кошелёк";
+"settings.delete.title" = "Удалить кошелёк?";
+"settings.delete.message" = "Убедитесь что вы сохранили секретную фразу. Это действие необратимо.";
+
+"common.continue" = "Продолжить";
+"common.cancel" = "Отмена";
+"common.done" = "Готово";
+"common.delete" = "Удалить";
+"common.later" = "Позже";
+"common.import" = "Импортировать";
+"common.copied" = "Скопировано";
