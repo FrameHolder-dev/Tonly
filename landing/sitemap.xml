@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://tonly.one/en/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://tonly.one/ru/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://tonly.one/zh/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://tonly.one/en/privacy</loc><priority>0.3</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://tonly.one/en/terms</loc><priority>0.3</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://tonly.one/ru/privacy</loc><priority>0.3</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://tonly.one/ru/terms</loc><priority>0.3</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://tonly.one/zh/privacy</loc><priority>0.3</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://tonly.one/zh/terms</loc><priority>0.3</priority><changefreq>monthly</changefreq></url>
+</urlset>

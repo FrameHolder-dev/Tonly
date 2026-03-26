@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>隐私政策 — Tonly</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg:#FFF;--bg-gray:#F5F5F7;--text:#1D1D1F;--text-s:#6E6E73;--accent:#0098EA;--r:20px}
+        html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+        body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;display:flex;flex-direction:column}
+        a{color:inherit}
+
+        nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:100;width:auto;max-width:720px}
+        .nav-pill{display:flex;align-items:center;gap:24px;background:rgba(245,245,247,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:100px;padding:10px 10px 10px 24px}
+        .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;text-decoration:none}
+        .logo img{width:28px;height:28px;border-radius:7px}
+        .nav-links{display:flex;align-items:center;gap:20px}
+        .nav-links a{color:var(--text-s);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s}
+        .nav-links a:hover{color:var(--text)}
+        .btn-nav{background:var(--text);color:var(--bg)!important;padding:8px 20px;border-radius:100px;font-size:13px;font-weight:600;transition:opacity .2s;text-decoration:none}
+        .btn-nav:hover{opacity:.85}
+        .lang-sel{position:relative;cursor:pointer;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;user-select:none}
+        .lang-sel:hover{background:rgba(0,0,0,0.05)}
+        .lang-drop{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:white;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.12);padding:4px;min-width:100px;z-index:10}
+        .lang-sel.open .lang-drop{display:block}
+        .lang-drop a{display:block;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text);text-decoration:none;transition:background .15s}
+        .lang-drop a:hover{background:var(--bg-gray)}
+
+        .content{max-width:720px;margin:0 auto;padding:140px 24px 80px}
+        .content h1{font-size:36px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px}
+        .content .updated{font-size:14px;color:var(--text-s);margin-bottom:48px}
+        .content h2{font-size:20px;font-weight:700;margin-top:40px;margin-bottom:12px}
+        .content p{font-size:15px;color:var(--text-s);line-height:1.7;margin-bottom:16px}
+        .content ul{margin:0 0 16px 24px;color:var(--text-s);font-size:15px;line-height:1.7}
+
+        footer{background:var(--bg-gray);padding:48px 0 0;margin-top:auto;border-radius:24px 24px 0 0}
+        .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;max-width:1080px;margin-left:auto;margin-right:auto;padding:0 24px}
+        .footer-brand{display:flex;flex-direction:column;gap:12px}
+        .footer-brand .logo{font-size:18px}
+        .footer-brand p{font-size:13px;color:var(--text-s);max-width:240px;line-height:1.6}
+        .footer-col h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;color:var(--text-s)}
+        .footer-col a{display:block;font-size:14px;color:var(--text-s);text-decoration:none;margin-bottom:10px;transition:color .2s}
+        .footer-col a:hover{color:var(--text)}
+        .footer-bottom{border-top:1px solid rgba(128,128,128,0.15);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;max-width:1080px;margin:0 auto}
+        .footer-bottom p{font-size:12px;color:var(--text-s)}
+        .footer-socials{display:flex;gap:16px}
+        .footer-socials a{color:var(--text-s);transition:color .2s;text-decoration:none}
+        .footer-socials a:hover{color:var(--text)}
+        .footer-socials svg{width:18px;height:18px}
+
+        @media(max-width:768px){
+            nav{left:16px;right:16px;transform:none;max-width:none}
+            .nav-links a:not(.btn-nav){display:none}
+            .lang-sel{display:none}
+            .content{padding:110px 24px 60px}
+            .footer-top{grid-template-columns:1fr 1fr}
+            .footer-bottom{flex-direction:column;gap:12px;text-align:center}
+        }
+        @media(max-width:480px){
+            .footer-top{grid-template-columns:1fr}
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-pill">
+        <a href="/zh/" class="logo"><img src="/assets/logo.svg" alt="">Tonly</a>
+        <div class="nav-links">
+            <a href="/zh/#features">功能</a>
+            <a href="/zh/#w5">W5</a>
+            <a href="https://github.com/FrameHolder-dev/Tonly" target="_blank">GitHub</a>
+        </div>
+        <div class="lang-sel" onclick="this.classList.toggle('open')">
+            <span class="lang-current">ZH</span>
+            <svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="#6E6E73" stroke-width="1.5" fill="none"/></svg>
+            <div class="lang-drop">
+                <a href="/en/">English</a>
+                <a href="/ru/">Русский</a>
+                <a href="/zh/">中文</a>
+            </div>
+        </div>
+        <a href="/zh/#notify" class="btn-nav">获取访问</a>
+    </div>
+</nav>
+
+<div class="content">
+    <h1>隐私政策</h1>
+    <p class="updated">最后更新：2026年3月25日</p>
+
+    <h2>概述</h2>
+    <p>Tonly（"我们"）是一款用于TON区块链的非托管钱包应用（bundle ID: one.tonly.app），运营于tonly.one。本政策描述了我们如何处理您的信息。</p>
+
+    <h2>非托管钱包</h2>
+    <p>Tonly是非托管钱包。您的私钥和助记词完全在您的设备上生成和存储。我们永远无法访问您的私钥、助记词或钱包资金。</p>
+
+    <h2>我们收集的信息</h2>
+    <p>我们仅收集运营服务所需的最少信息：</p>
+    <ul>
+        <li>电子邮件地址（如果您注册了早期访问通知）</li>
+        <li>公开钱包地址（用于从公共区块链显示余额和交易历史）</li>
+        <li>设备类型和操作系统版本（用于崩溃报告和兼容性）</li>
+    </ul>
+
+    <h2>我们不收集的信息</h2>
+    <ul>
+        <li>私钥或助记词</li>
+        <li>密码或PIN码</li>
+        <li>生物识别数据（Face ID / Touch ID完全由iOS在设备上处理）</li>
+        <li>位置数据</li>
+        <li>联系人或个人文件</li>
+    </ul>
+
+    <h2>区块链数据</h2>
+    <p>TON区块链上的所有交易都是公开可见的。Tonly读取公开可用的区块链数据来显示您的余额和交易历史。我们不控制或存储区块链数据。</p>
+
+    <h2>第三方服务</h2>
+    <p>Tonly可能与第三方服务交互，如TON API提供商、价格数据源和代币元数据服务。这些服务可能有各自的隐私政策。我们不会为广告目的向第三方出售或分享您的个人信息。</p>
+
+    <h2>数据存储与安全</h2>
+    <p>敏感数据（包括私钥和助记词）存储在iOS Keychain中，使用硬件支持的加密。我们使用行业标准安全措施来保护所处理的任何数据。</p>
+
+    <h2>您的权利</h2>
+    <p>您可以随时删除应用和所有本地存储的数据。如需请求删除服务器端数据（如通知列表中的电子邮件），请通过hello@tonly.one联系我们。</p>
+
+    <h2>变更</h2>
+    <p>我们可能不时更新本政策。变更将在此页面发布并更新日期。</p>
+
+    <h2>联系方式</h2>
+    <p>如对本隐私政策有疑问，请通过<a href="mailto:hello@tonly.one">hello@tonly.one</a>联系我们。</p>
+</div>
+
+<footer>
+    <div class="footer-top">
+        <div class="footer-brand">
+            <a href="/zh/" class="logo"><img src="/assets/logo.svg" alt="" style="width:28px;height:28px;border-radius:7px">Tonly</a>
+            <p>最快的原生iOS TON钱包。基于W5。</p>
+        </div>
+        <div class="footer-col"><h4>产品</h4><a href="/zh/#features">功能</a><a href="/zh/#w5">W5标准</a><a href="/zh/#notify">早期访问</a></div>
+        <div class="footer-col"><h4>社区</h4><a href="https://t.me/tonly_wallet" target="_blank">Telegram</a><a href="https://github.com/FrameHolder-dev/Tonly" target="_blank">GitHub</a><a href="mailto:hello@tonly.one">联系我们</a></div>
+        <div class="footer-col"><h4>法律</h4><a href="/zh/privacy">隐私政策</a><a href="/zh/terms">服务条款</a></div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Tonly. All rights reserved.</p>
+        <div class="footer-socials">
+            <a href="https://t.me/tonly_wallet" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
+            <a href="https://github.com/FrameHolder-dev/Tonly" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
