@@ -1,0 +1,14 @@
+services:
+  webhook:
+    build:
+      context: .
+      dockerfile: Dockerfile.webhook
+    container_name: tonly-webhook
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/tonly:/opt/tonly
