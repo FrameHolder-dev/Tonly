@@ -142,25 +142,16 @@
             .hero-btns{flex-direction:column;align-items:center}
             .footer-top{grid-template-columns:1fr}
         }
-            .nav-pill{background:rgba(28,28,30,0.88)}
-            .lang-drop{background:#2C2C2E;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
-            .mobile-menu{background:#000}
-            .btn-light{background:#2C2C2E;color:var(--text)}
-            .card-accent{background:linear-gradient(135deg,#0A1F35,#071628)}
-            .card-dark{background:#2C2C2E}
-            .footer-bottom{border-top-color:rgba(255,255,255,0.08)}
-            .notify{background:rgba(255,255,255,0.1)}
-        }
     </style>
     <meta property="og:title" content="Tonly — W5 кошелёк для TON">
     <meta property="og:description" content="Самый быстрый нативный iOS кошелёк для блокчейна TON.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://tonly.one/ru/">
-    <meta property="og:image" content="https://tonly.one/assets/og.png">
+    <meta property="og:image" content="https://tonly.one/assets/logo.svg">
     <meta property="og:locale" content="ru_RU">
     <meta property="og:locale:alternate" content="en_US">
     <meta property="og:locale:alternate" content="zh_CN">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Tonly — W5 кошелёк для TON">
     <meta name="twitter:description" content="Самый быстрый нативный iOS кошелёк для блокчейна TON.">
     <link rel="canonical" href="https://tonly.one/ru/">
@@ -304,7 +295,6 @@
 </footer>
 
 <script>
-_ro.observe(el)});
 function handleSubmit(e){e.preventDefault();var btn=e.target.querySelector('button');var inp=e.target.querySelector('input');btn.disabled=true;btn.textContent='...';fetch('https://api.tonly.one/api/v1/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:inp.value})}).then(function(r){return r.json()}).then(function(d){var m=document.getElementById('formMsg');m.style.display='block';if(d.ok){m.textContent="Вы в списке!";m.style.color='var(--accent)';e.target.reset()}else{m.textContent=d.error||'Что-то пошло не так';m.style.color='#FF3B30'}btn.disabled=false;btn.textContent='Уведомить'}).catch(function(){var m=document.getElementById('formMsg');m.style.display='block';m.textContent='Ошибка сети';m.style.color='#FF3B30';btn.disabled=false;btn.textContent='Уведомить'})}
 
 </script></body>

@@ -90,21 +90,12 @@
         @media(max-width:480px){
             .footer-top{grid-template-columns:1fr}
         }
-            .nav-pill{background:rgba(28,28,30,0.88)}
-            .lang-drop{background:#2C2C2E;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
-            .mobile-menu{background:#000}
-            .btn-light{background:#2C2C2E;color:var(--text)}
-            .card-accent{background:linear-gradient(135deg,#0A1F35,#071628)}
-            .card-dark{background:#2C2C2E}
-            .footer-bottom{border-top-color:rgba(255,255,255,0.08)}
-            .notify{background:rgba(255,255,255,0.1)}
-        }
     </style>
     <meta property="og:title" content="Support Tonly">
     <meta property="og:description" content="Support Tonly development. Donate TON to help us build the fastest wallet.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://tonly.one/en/donate">
-    <meta property="og:image" content="https://tonly.one/assets/og.png">
+    <meta property="og:image" content="https://tonly.one/assets/logo.svg">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ru_RU">
     <meta property="og:locale:alternate" content="zh_CN">
@@ -190,6 +181,5 @@
 
 <script>
 function copyAddress(){var a=document.getElementById('tonAddress').textContent;navigator.clipboard.writeText(a).then(function(){var b=document.querySelector('.btn-copy');b.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Copied!';setTimeout(function(){b.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy Address'},2000)})}
-_ro.observe(el)});
 </script></body>
 </html>
