@@ -97,11 +97,6 @@
             .footer-bottom{border-top-color:rgba(255,255,255,0.08)}
             .notify{background:rgba(255,255,255,0.1)}
         }
-        .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
-        .reveal.visible{opacity:1;transform:none}.card.reveal.visible:hover{transform:scale(1.05)}
-        .reveal:nth-child(2){transition-delay:.08s}
-        .reveal:nth-child(3){transition-delay:.16s}
-        .reveal:nth-child(4){transition-delay:.24s}
     </style>
     <meta property="og:title" content="Умные уведомления — Tonly W5 кошелёк">
     <meta property="og:description" content="Аналитика блокчейна в пуш-уведомлениях. Движения китов, ценовые алерты.">
@@ -190,6 +185,6 @@
     </div>
 </footer>
 
-<script>var _ro=new IntersectionObserver(function(e){e.forEach(function(i){if(i.isIntersecting)i.target.classList.add('visible')})},{threshold:0.12,rootMargin:'0px 0px -32px 0px'});document.querySelectorAll('.card,.stat-box,.w5-item').forEach(function(el){el.classList.add('reveal');_ro.observe(el)});</script>
+<script>_ro.observe(el)});</script>
 </body>
 </html>

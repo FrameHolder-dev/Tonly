@@ -151,11 +151,6 @@
             .footer-bottom{border-top-color:rgba(255,255,255,0.08)}
             .notify{background:rgba(255,255,255,0.1)}
         }
-        .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
-        .reveal.visible{opacity:1;transform:none}.card.reveal.visible:hover{transform:scale(1.05)}
-        .reveal:nth-child(2){transition-delay:.08s}
-        .reveal:nth-child(3){transition-delay:.16s}
-        .reveal:nth-child(4){transition-delay:.24s}
     </style>
     <meta property="og:title" content="Tonly — TON W5 钱包">
     <meta property="og:description" content="最快的原生iOS TON区块链钱包。">
@@ -309,7 +304,7 @@
 </footer>
 
 <script>
-var _ro=new IntersectionObserver(function(e){e.forEach(function(i){if(i.isIntersecting)i.target.classList.add('visible')})},{threshold:0.12,rootMargin:'0px 0px -32px 0px'});document.querySelectorAll('.card,.stat-box,.w5-item').forEach(function(el){el.classList.add('reveal');_ro.observe(el)});
+_ro.observe(el)});
 function handleSubmit(e){e.preventDefault();var btn=e.target.querySelector('button');var inp=e.target.querySelector('input');btn.disabled=true;btn.textContent='...';fetch('https://api.tonly.one/api/v1/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:inp.value})}).then(function(r){return r.json()}).then(function(d){var m=document.getElementById('formMsg');m.style.display='block';if(d.ok){m.textContent="已加入列表！";m.style.color='var(--accent)';e.target.reset()}else{m.textContent=d.error||'出了点问题';m.style.color='#FF3B30'}btn.disabled=false;btn.textContent='通知我'}).catch(function(){var m=document.getElementById('formMsg');m.style.display='block';m.textContent='网络错误';m.style.color='#FF3B30';btn.disabled=false;btn.textContent='通知我'})}
 
 </script></body>
