@@ -88,12 +88,29 @@
         @media(max-width:480px){
             .footer-top{grid-template-columns:1fr}
         }
+    
+        @media(prefers-color-scheme:dark){
+            :root{--bg:#000;--bg-gray:#1C1C1E;--text:#F5F5F7;--text-s:#8E8E93}
+            .nav-pill{background:rgba(28,28,30,0.88)}
+            .lang-drop{background:#2C2C2E;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
+            .mobile-menu{background:#000}
+            .btn-light{background:#2C2C2E;color:var(--text)}
+            .card-accent{background:linear-gradient(135deg,#0A1F35,#071628)}
+            .card-dark{background:#2C2C2E}
+            .footer-bottom{border-top-color:rgba(255,255,255,0.08)}
+            .notify{background:rgba(255,255,255,0.1)}
+        }
+        .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+        .reveal.visible{opacity:1;transform:none}
+        .reveal:nth-child(2){transition-delay:.08s}
+        .reveal:nth-child(3){transition-delay:.16s}
+        .reveal:nth-child(4){transition-delay:.24s}
     </style>
     <meta property="og:title" content="Smart Alerts — Tonly W5 Wallet">
     <meta property="og:description" content="On-chain intelligence delivered as push notifications. Whale movements, price alerts, gas optimization.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://tonly.one/en/smart-alerts">
-    <meta property="og:image" content="https://tonly.one/assets/logo.svg">
+    <meta property="og:image" content="https://tonly.one/assets/og.png">
     <link rel="canonical" href="https://tonly.one/en/smart-alerts">
     <link rel="alternate" hreflang="en" href="https://tonly.one/en/smart-alerts">
     <link rel="alternate" hreflang="ru" href="https://tonly.one/ru/smart-alerts">
@@ -176,5 +193,6 @@
     </div>
 </footer>
 
+<script>var _ro=new IntersectionObserver(function(e){e.forEach(function(i){if(i.isIntersecting)i.target.classList.add('visible')})},{threshold:0.12,rootMargin:'0px 0px -32px 0px'});document.querySelectorAll('.card,.stat-box,.w5-item').forEach(function(el){el.classList.add('reveal');_ro.observe(el)});</script>
 </body>
 </html>

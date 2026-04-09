@@ -6,6 +6,7 @@ var lang=navigator.language||navigator.userLanguage;
 if(lang.startsWith('ru'))window.location.replace('/ru/');
 else if(lang.startsWith('zh'))window.location.replace('/zh/');
 else window.location.replace('/en/');
+var _ro=new IntersectionObserver(function(e){e.forEach(function(i){if(i.isIntersecting)i.target.classList.add('visible')})},{threshold:0.12,rootMargin:'0px 0px -32px 0px'});document.querySelectorAll('.card,.stat-box,.w5-item').forEach(function(el){el.classList.add('reveal');_ro.observe(el)});
 </script>
 <title>Tonly</title>
 </head>
