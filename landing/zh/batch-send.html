@@ -88,9 +88,6 @@
         @media(max-width:480px){
             .footer-top{grid-template-columns:1fr}
         }
-    
-        @media(prefers-color-scheme:dark){
-            :root{--bg:#000;--bg-gray:#1C1C1E;--text:#F5F5F7;--text-s:#8E8E93}
             .nav-pill{background:rgba(28,28,30,0.88)}
             .lang-drop{background:#2C2C2E;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
             .mobile-menu{background:#000}
@@ -101,7 +98,7 @@
             .notify{background:rgba(255,255,255,0.1)}
         }
         .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
-        .reveal.visible{opacity:1;transform:none}
+        .reveal.visible{opacity:1;transform:none}.card.reveal.visible:hover{transform:scale(1.05)}
         .reveal:nth-child(2){transition-delay:.08s}
         .reveal:nth-child(3){transition-delay:.16s}
         .reveal:nth-child(4){transition-delay:.24s}
