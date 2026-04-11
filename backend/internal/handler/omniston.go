@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/FrameHolder-dev/Tonly/backend/internal/service"
 	"golang.org/x/net/websocket"
 )
 
@@ -28,6 +29,9 @@ func NewOmniston() *Omniston {
 	refAddr := os.Getenv("PROTOCOL_REVENUE_ADDRESS")
 	if refAddr == "" {
 		refAddr = "UQAZmfST4rGbvkQvexcxWfnnRfLzNdZg52yWdL51lDEjmCLR"
+	}
+	if raw, err := service.TONAddressToRaw(refAddr); err == nil {
+		refAddr = raw
 	}
 	feeBps := 10
 	if v := os.Getenv("PROTOCOL_FEE_BPS"); v != "" {
@@ -54,18 +58,6 @@ type omnistonReq struct {
 	Params  any    `json:"params"`
 }
 
-type omnistonResp struct {
-	JSONRPC string          `json:"jsonrpc"`
-	ID      string          `json:"id"`
-	Result  json.RawMessage `json:"result,omitempty"`
-	Error   *struct {
-		Code    int    `json:"code"`
-		Message string `json:"message"`
-	} `json:"error,omitempty"`
-	Method string          `json:"method,omitempty"`
-	Params json.RawMessage `json:"params,omitempty"`
-}
-
 type QuoteRequest struct {
 	BidAsset string `json:"bid_asset"`
 	AskAsset string `json:"ask_asset"`
@@ -86,7 +78,14 @@ func (h *Omniston) Quote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), 20*time.Second)
+	if raw, err := service.TONAddressToRaw(req.BidAsset); err == nil {
+		req.BidAsset = raw
+	}
+	if raw, err := service.TONAddressToRaw(req.AskAsset); err == nil {
+		req.AskAsset = raw
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 25*time.Second)
 	defer cancel()
 
 	result, err := h.fetchQuote(ctx, req)
@@ -191,28 +190,26 @@ func (h *Omniston) fetchQuote(ctx context.Context, req QuoteRequest) ([]byte, er
 		}
 
 		var msg struct {
-			Method string          `json:"method"`
-			Params json.RawMessage `json:"params"`
+			Method string `json:"method"`
+			Params struct {
+				Subscription int64 `json:"subscription"`
+				Result       struct {
+					Event map[string]json.RawMessage `json:"event"`
+				} `json:"result"`
+			} `json:"params"`
 		}
 		if err := websocket.JSON.Receive(conn, &msg); err != nil {
 			return nil, fmt.Errorf("receive: %w", err)
 		}
 
-		if msg.Method != "event" || len(msg.Params) == 0 {
+		if msg.Method != "event" {
 			continue
 		}
 
-		var envelope struct {
-			Event map[string]json.RawMessage `json:"event"`
-		}
-		if err := json.Unmarshal(msg.Params, &envelope); err != nil {
-			continue
-		}
-
-		if quoteUpdated, ok := envelope.Event["quote_updated"]; ok && len(quoteUpdated) > 0 {
+		if quoteUpdated, ok := msg.Params.Result.Event["quote_updated"]; ok && len(quoteUpdated) > 0 {
 			return quoteUpdated, nil
 		}
-		if noQuote, ok := envelope.Event["no_quote"]; ok && len(noQuote) > 0 {
+		if noQuote, ok := msg.Params.Result.Event["no_quote"]; ok && len(noQuote) > 0 {
 			return nil, fmt.Errorf("no quote available")
 		}
 	}
