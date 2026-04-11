@@ -8,10 +8,22 @@ struct AnimatedImageView: View {
 
     var body: some View {
         let ext = url.pathExtension.lowercased()
-        if ext == "mp4" || ext == "mov" || ext == "m4v" {
+        if ext == "mp4" || ext == "mov" || ext == "m4v" || ext == "webm" {
             VideoPlayerView(url: url)
-        } else {
+        } else if ext == "gif" || ext == "webp" {
             GIFView(url: url)
+        } else if let fallback = staticFallback {
+            AsyncImage(url: fallback) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                Color.clear
+            }
+        } else {
+            AsyncImage(url: url) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                Color.clear
+            }
         }
     }
 }
@@ -20,8 +32,7 @@ struct VideoPlayerView: UIViewRepresentable {
     let url: URL
 
     func makeUIView(context: Context) -> UIView {
-        let view = LoopingPlayerUIView(url: url)
-        return view
+        LoopingPlayerUIView(url: url)
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {}
@@ -65,16 +76,16 @@ struct GIFView: UIViewRepresentable {
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
         webView.scrollView.isScrollEnabled = false
-        return webView
-    }
-
-    func updateUIView(_ webView: WKWebView, context: Context) {
+        webView.isUserInteractionEnabled = false
         let html = """
-        <html><head><style>
+        <html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>
         html,body{margin:0;padding:0;background:transparent;height:100%;overflow:hidden}
         img{width:100%;height:100%;object-fit:cover;display:block}
         </style></head><body><img src="\(url.absoluteString)"></body></html>
         """
         webView.loadHTMLString(html, baseURL: nil)
+        return webView
     }
+
+    func updateUIView(_ webView: WKWebView, context: Context) {}
 }
