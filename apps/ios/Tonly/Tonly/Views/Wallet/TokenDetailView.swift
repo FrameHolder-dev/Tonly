@@ -173,7 +173,7 @@ struct TokenDetailView: View {
                 .foregroundStyle(TonlyTheme.textPrimary)
                 .padding(.horizontal, TonlyTheme.padding)
 
-            let txs = WalletStore.shared.transactions
+            let txs = filteredTransactions
             if txs.isEmpty {
                 Text("No transactions yet")
                     .font(.subheadline)
@@ -186,6 +186,15 @@ struct TokenDetailView: View {
                 }
             }
         }
+    }
+
+    private var filteredTransactions: [Transaction] {
+        let all = WalletStore.shared.transactions
+        let symbol = token.symbol
+        if token.id == "ton" {
+            return all.filter { $0.kind == .ton && $0.symbol == "TON" }
+        }
+        return all.filter { $0.kind == .jetton && $0.symbol == symbol }
     }
 
     private func fetchChart() async {
