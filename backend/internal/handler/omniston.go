@@ -191,20 +191,29 @@ func (h *Omniston) fetchQuote(ctx context.Context, req QuoteRequest) ([]byte, er
 		}
 
 		var msg struct {
-			Method string `json:"method"`
-			Params struct {
-				SubscriptionID string          `json:"subscription_id"`
-				Result         json.RawMessage `json:"result"`
-			} `json:"params"`
+			Method string          `json:"method"`
+			Params json.RawMessage `json:"params"`
 		}
 		if err := websocket.JSON.Receive(conn, &msg); err != nil {
 			return nil, fmt.Errorf("receive: %w", err)
 		}
 
-		if msg.Method == "event" && len(msg.Params.Result) > 0 {
-			if subscriptionID == "" || msg.Params.SubscriptionID == subscriptionID {
-				return msg.Params.Result, nil
-			}
+		if msg.Method != "event" || len(msg.Params) == 0 {
+			continue
+		}
+
+		var envelope struct {
+			Event map[string]json.RawMessage `json:"event"`
+		}
+		if err := json.Unmarshal(msg.Params, &envelope); err != nil {
+			continue
+		}
+
+		if quoteUpdated, ok := envelope.Event["quote_updated"]; ok && len(quoteUpdated) > 0 {
+			return quoteUpdated, nil
+		}
+		if noQuote, ok := envelope.Event["no_quote"]; ok && len(noQuote) > 0 {
+			return nil, fmt.Errorf("no quote available")
 		}
 	}
 }
