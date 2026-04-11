@@ -140,6 +140,7 @@ func (h *Omniston) fetchQuote(ctx context.Context, req QuoteRequest) ([]byte, er
 		"settlement_params": map[string]any{
 			"max_price_slippage_bps": slippage,
 			"max_outgoing_messages":  4,
+			"gasless_settlement":     0,
 		},
 	}
 
