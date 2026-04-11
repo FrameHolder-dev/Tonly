@@ -64,29 +64,25 @@ struct OmnistonQuote: Codable {
 }
 
 struct OmnistonBuildResponse: Codable {
-    let transaction: OmnistonTransaction?
+    let ton: OmnistonTONTx?
 }
 
-struct OmnistonTransaction: Codable {
-    let network: String?
+struct OmnistonTONTx: Codable {
     let messages: [OmnistonMessage]
 }
 
 struct OmnistonMessage: Codable {
-    let address: OmnistonAddress
+    let targetAddress: String
     let sendAmount: String
     let payload: String?
+    let jettonWalletStateInit: String?
 
     enum CodingKeys: String, CodingKey {
-        case address
+        case targetAddress = "target_address"
         case sendAmount = "send_amount"
         case payload
+        case jettonWalletStateInit = "jetton_wallet_state_init"
     }
-}
-
-struct OmnistonAddress: Codable {
-    let blockchain: Int
-    let address: String
 }
 
 struct SwapView: View {
@@ -499,7 +495,7 @@ struct SwapView: View {
                 let (buildData, _) = try await URLSession.shared.data(for: buildReq)
                 let build = try JSONDecoder().decode(OmnistonBuildResponse.self, from: buildData)
 
-                guard let message = build.transaction?.messages.first else {
+                guard let messages = build.ton?.messages, !messages.isEmpty else {
                     throw NSError(domain: "swap", code: 2, userInfo: [NSLocalizedDescriptionKey: "No messages in transfer"])
                 }
 
@@ -516,28 +512,32 @@ struct SwapView: View {
                     walletId: walletId
                 )
 
-                let destAddress = try Address.parse(message.address.address)
-                let amountValue = BigUInt(message.sendAmount) ?? BigUInt(0)
+                var swapMessages: [MessageRelaxed] = []
+                for message in messages {
+                    let destAddress = try Address.parse(message.targetAddress)
+                    let amountValue = BigUInt(message.sendAmount) ?? BigUInt(0)
 
-                let payloadCell: Cell
-                if let payloadBoc = message.payload, !payloadBoc.isEmpty,
-                   let data = Data(base64Encoded: payloadBoc) {
-                    let cells = try Cell.fromBoc(src: data)
-                    payloadCell = cells.first ?? .empty
-                } else {
-                    payloadCell = .empty
+                    let payloadCell: Cell
+                    if let payloadHex = message.payload, !payloadHex.isEmpty,
+                       let data = Data(hexString: payloadHex) {
+                        let cells = try Cell.fromBoc(src: data)
+                        payloadCell = cells.first ?? .empty
+                    } else {
+                        payloadCell = .empty
+                    }
+
+                    let msg = MessageRelaxed.internal(
+                        to: destAddress,
+                        value: amountValue,
+                        bounce: true,
+                        body: payloadCell
+                    )
+                    swapMessages.append(msg)
                 }
-
-                let swapMsg = MessageRelaxed.internal(
-                    to: destAddress,
-                    value: amountValue,
-                    bounce: true,
-                    body: payloadCell
-                )
 
                 let transferData = WalletTransferData(
                     seqno: UInt64(seqnoResponse.seqno),
-                    messages: [swapMsg],
+                    messages: swapMessages,
                     sendMode: .walletDefault(),
                     timeout: UInt64(Date().timeIntervalSince1970) + 120
                 )

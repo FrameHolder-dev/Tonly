@@ -186,4 +186,18 @@ extension Data {
     func hexString() -> String {
         map { String(format: "%02x", $0) }.joined()
     }
+
+    init?(hexString: String) {
+        let clean = hexString.hasPrefix("0x") ? String(hexString.dropFirst(2)) : hexString
+        guard clean.count % 2 == 0 else { return nil }
+        var data = Data(capacity: clean.count / 2)
+        var index = clean.startIndex
+        while index < clean.endIndex {
+            let next = clean.index(index, offsetBy: 2)
+            guard let byte = UInt8(clean[index..<next], radix: 16) else { return nil }
+            data.append(byte)
+            index = next
+        }
+        self = data
+    }
 }
