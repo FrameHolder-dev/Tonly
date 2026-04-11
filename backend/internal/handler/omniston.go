@@ -169,6 +169,7 @@ func (h *Omniston) buildTransfer(ctx context.Context, req BuildRequest) ([]byte,
 			"blockchain": 607,
 			"address":    req.GasExcess,
 		},
+		"use_recommended_slippage": true,
 	}
 
 	reqMsg := omnistonReq{
