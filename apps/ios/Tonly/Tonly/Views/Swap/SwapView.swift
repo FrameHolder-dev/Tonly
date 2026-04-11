@@ -27,36 +27,66 @@ struct SwapAssetsResponse: Codable {
     let assets: [SwapAsset]
 }
 
-struct SwapSimulateResponse: Codable {
-    let offerAddress: String
-    let askAddress: String
-    let routerAddress: String
-    let poolAddress: String
-    let offerJettonWallet: String
-    let askJettonWallet: String
-    let offerUnits: String
-    let askUnits: String
-    let swapRate: String
-    let minAskUnits: String
-    let priceImpact: String
-    let feeUnits: String
-    let feePercent: String
+struct OmnistonParams: Codable {
+    let swap: OmnistonSwap?
+}
+
+struct OmnistonSwap: Codable {
+    let minAskAmount: String?
+    let recommendedMinAskAmount: String?
+    let recommendedSlippageBps: Int?
 
     enum CodingKeys: String, CodingKey {
-        case offerAddress = "offer_address"
-        case askAddress = "ask_address"
-        case routerAddress = "router_address"
-        case poolAddress = "pool_address"
-        case offerJettonWallet = "offer_jetton_wallet"
-        case askJettonWallet = "ask_jetton_wallet"
-        case offerUnits = "offer_units"
-        case askUnits = "ask_units"
-        case swapRate = "swap_rate"
-        case minAskUnits = "min_ask_units"
-        case priceImpact = "price_impact"
-        case feeUnits = "fee_units"
-        case feePercent = "fee_percent"
+        case minAskAmount = "min_ask_amount"
+        case recommendedMinAskAmount = "recommended_min_ask_amount"
+        case recommendedSlippageBps = "recommended_slippage_bps"
     }
+}
+
+struct OmnistonQuote: Codable {
+    let quoteId: String
+    let resolverName: String?
+    let bidUnits: String
+    let askUnits: String
+    let referrerFeeUnits: String?
+    let gasBudget: String?
+    let params: OmnistonParams?
+
+    enum CodingKeys: String, CodingKey {
+        case quoteId = "quote_id"
+        case resolverName = "resolver_name"
+        case bidUnits = "bid_units"
+        case askUnits = "ask_units"
+        case referrerFeeUnits = "referrer_fee_units"
+        case gasBudget = "gas_budget"
+        case params
+    }
+}
+
+struct OmnistonBuildResponse: Codable {
+    let transaction: OmnistonTransaction?
+}
+
+struct OmnistonTransaction: Codable {
+    let network: String?
+    let messages: [OmnistonMessage]
+}
+
+struct OmnistonMessage: Codable {
+    let address: OmnistonAddress
+    let sendAmount: String
+    let payload: String?
+
+    enum CodingKeys: String, CodingKey {
+        case address
+        case sendAmount = "send_amount"
+        case payload
+    }
+}
+
+struct OmnistonAddress: Codable {
+    let blockchain: Int
+    let address: String
 }
 
 struct SwapView: View {
@@ -65,7 +95,8 @@ struct SwapView: View {
     @State private var fromAsset: SwapAsset?
     @State private var toAsset: SwapAsset?
     @State private var fromAmount = ""
-    @State private var simulation: SwapSimulateResponse?
+    @State private var simulation: OmnistonQuote?
+    @State private var rawQuote: Data?
     @State private var isSimulating = false
     @State private var isSwapping = false
     @State private var showFromPicker = false
@@ -87,6 +118,19 @@ struct SwapView: View {
         let ask = Double(sim.askUnits) ?? 0
         let value = ask / pow(10, Double(toDecimals))
         return String(format: "%.\(min(toDecimals, 6))f", value)
+    }
+
+    var swapRate: String {
+        guard let sim = simulation,
+              let from = fromAsset,
+              let to = toAsset,
+              let bidUnits = Double(sim.bidUnits),
+              let askUnits = Double(sim.askUnits),
+              bidUnits > 0 else { return "" }
+        let bidValue = bidUnits / pow(10, Double(from.decimals))
+        let askValue = askUnits / pow(10, Double(to.decimals))
+        let rate = askValue / bidValue
+        return String(format: "1 %@ ≈ %.4f %@", from.symbol, rate, to.symbol)
     }
 
     var buttonTitle: String {
@@ -137,11 +181,11 @@ struct SwapView: View {
 
                 if let sim = simulation, !isSimulating {
                     VStack(spacing: 8) {
-                        infoRow("Rate", value: "1 \(fromAsset?.symbol ?? "") ≈ \(formatRate(sim.swapRate)) \(toAsset?.symbol ?? "")")
-                        infoRow("Min receive", value: formatMinReceive(sim.minAskUnits))
-                        infoRow("Price impact", value: sim.priceImpact + "%")
-                        infoRow("Fee", value: "\(sim.feePercent)%")
-                        infoRow("Route", value: "STON.fi")
+                        infoRow("Rate", value: swapRate)
+                        if let minAsk = sim.params?.swap?.minAskAmount {
+                            infoRow("Min receive", value: formatMinReceive(minAsk))
+                        }
+                        infoRow("Route", value: sim.resolverName ?? "Omniston")
                     }
                     .padding(14)
                     .background(TonlyTheme.surface)
@@ -354,6 +398,7 @@ struct SwapView: View {
         guard let from = fromAsset, let to = toAsset else { return }
         guard fromAmountValue > 0 else {
             simulation = nil
+            rawQuote = nil
             return
         }
 
@@ -363,12 +408,26 @@ struct SwapView: View {
         error = nil
 
         do {
-            let response: SwapSimulateResponse = try await APIClient.shared.request(
-                .swapSimulate(offerAddress: from.address, askAddress: to.address, units: units)
-            )
-            simulation = response
+            let body: [String: Any] = [
+                "bid_asset": from.address,
+                "ask_asset": to.address,
+                "bid_units": units,
+                "slippage_bps": 100
+            ]
+            let url = URL(string: "https://api.tonly.one/api/v1/swap/quote")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            request.timeoutInterval = 30
+
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let quote = try JSONDecoder().decode(OmnistonQuote.self, from: data)
+            simulation = quote
+            rawQuote = data
         } catch {
             simulation = nil
+            rawQuote = nil
             self.error = "Failed to get swap quote"
         }
 
@@ -376,7 +435,7 @@ struct SwapView: View {
     }
 
     private func performSwap() {
-        guard let sim = simulation, let from = fromAsset, let to = toAsset else { return }
+        guard let sim = simulation, let rawData = rawQuote else { return }
 
         isSwapping = true
         error = nil
@@ -392,6 +451,33 @@ struct SwapView: View {
 
             do {
                 let store = WalletStore.shared
+                guard let sourceAddr = store.activeAddress else {
+                    throw NSError(domain: "swap", code: 1, userInfo: [NSLocalizedDescriptionKey: "No wallet"])
+                }
+
+                _ = sim
+                let quoteJSON = try JSONSerialization.jsonObject(with: rawData)
+
+                let buildBody: [String: Any] = [
+                    "quote": quoteJSON,
+                    "source_address": sourceAddr,
+                    "destination_address": sourceAddr,
+                    "gas_excess_address": sourceAddr
+                ]
+                let buildURL = URL(string: "https://api.tonly.one/api/v1/swap/build")!
+                var buildReq = URLRequest(url: buildURL)
+                buildReq.httpMethod = "POST"
+                buildReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                buildReq.httpBody = try JSONSerialization.data(withJSONObject: buildBody)
+                buildReq.timeoutInterval = 30
+
+                let (buildData, _) = try await URLSession.shared.data(for: buildReq)
+                let build = try JSONDecoder().decode(OmnistonBuildResponse.self, from: buildData)
+
+                guard let message = build.transaction?.messages.first else {
+                    throw NSError(domain: "swap", code: 2, userInfo: [NSLocalizedDescriptionKey: "No messages in transfer"])
+                }
+
                 let seqnoResponse: SeqnoResponse = try await APIClient.shared.request(
                     .walletSeqno(address: store.apiAddress ?? "")
                 )
@@ -405,36 +491,24 @@ struct SwapView: View {
                     walletId: walletId
                 )
 
-                let userAddress = try wallet.address()
-                let minAsk = BigUInt(sim.minAskUnits) ?? BigUInt(0)
-                let askJettonWallet = try Address.parse(sim.askJettonWallet)
+                let destAddress = try Address.parse(message.address.address)
+                let amountValue = BigUInt(message.sendAmount) ?? BigUInt(0)
 
-                let swapMsg: MessageRelaxed
-
-                let offerAmount = BigUInt(sim.offerUnits) ?? BigUInt(0)
-                let offerWallet = try Address.parse(sim.offerJettonWallet)
-
-                if from.address == SwapAsset.tonAddress {
-                    swapMsg = try StonfiSwapMessage.internalMessage(
-                        userWalletAddress: userAddress,
-                        minAskAmount: minAsk,
-                        offerAmount: offerAmount,
-                        jettonFromWalletAddress: offerWallet,
-                        jettonToWalletAddress: askJettonWallet,
-                        forwardAmount: STONFI_CONSTANTS.SWAP_TON_TO_JETTON.ForwardGasAmount,
-                        attachedAmount: offerAmount + STONFI_CONSTANTS.SWAP_TON_TO_JETTON.ForwardGasAmount
-                    )
+                let payloadCell: Cell
+                if let payloadBoc = message.payload, !payloadBoc.isEmpty,
+                   let data = Data(base64Encoded: payloadBoc) {
+                    let cells = try Cell.fromBoc(src: data)
+                    payloadCell = cells.first ?? .empty
                 } else {
-                    swapMsg = try StonfiSwapMessage.internalMessage(
-                        userWalletAddress: userAddress,
-                        minAskAmount: minAsk,
-                        offerAmount: offerAmount,
-                        jettonFromWalletAddress: offerWallet,
-                        jettonToWalletAddress: askJettonWallet,
-                        forwardAmount: STONFI_CONSTANTS.SWAP_JETTON_TO_JETTON.ForwardGasAmount,
-                        attachedAmount: STONFI_CONSTANTS.SWAP_JETTON_TO_JETTON.GasAmount
-                    )
+                    payloadCell = .empty
                 }
+
+                let swapMsg = MessageRelaxed.internal(
+                    to: destAddress,
+                    value: amountValue,
+                    bounce: true,
+                    body: payloadCell
+                )
 
                 let transferData = WalletTransferData(
                     seqno: UInt64(seqnoResponse.seqno),
@@ -448,8 +522,7 @@ struct SwapView: View {
                 let signature = try transfer.signMessage(signer: signer)
 
                 let bodyBuilder = Builder()
-                let signingCell = try transfer.signingMessage.endCell()
-                try bodyBuilder.store(signingCell.toBuilder())
+                try bodyBuilder.store(transfer.signingMessage)
                 try bodyBuilder.store(data: signature)
 
                 let body = try bodyBuilder.endCell()
@@ -475,11 +548,6 @@ struct SwapView: View {
                 HapticService.notification(.error)
             }
         }
-    }
-
-    private func formatRate(_ rate: String) -> String {
-        guard let value = Double(rate) else { return rate }
-        return String(format: "%.4f", value)
     }
 
     private func formatMinReceive(_ units: String) -> String {

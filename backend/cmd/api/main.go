@@ -76,6 +76,7 @@ func main() {
 	mux.HandleFunc("POST /api/v1/swap/simulate", swap.Simulate)
 	mux.HandleFunc("GET /api/v1/swap/assets", swap.GetAssets)
 	mux.HandleFunc("POST /api/v1/swap/quote", omniston.Quote)
+	mux.HandleFunc("POST /api/v1/swap/build", omniston.Build)
 
 	mux.Handle("/ws", wsHub.Handler())
 
