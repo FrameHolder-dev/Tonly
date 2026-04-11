@@ -133,13 +133,21 @@ struct NFTCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Group {
-                if nft.displayURL != nil {
-                    AnimatedImageView(url: nft.animationURL, staticFallback: nft.imageURL)
+                if let animURL = nft.animationURL {
+                    AnimatedImageView(url: animURL, staticFallback: nft.imageURL)
+                        .aspectRatio(1, contentMode: .fill)
+                } else if let url = nft.imageURL, !url.absoluteString.isEmpty {
+                    AsyncImage(url: url) { image in
+                        image.resizable().scaledToFill()
+                    } placeholder: {
+                        nftPlaceholder
+                    }
+                    .aspectRatio(1, contentMode: .fill)
                 } else {
                     nftPlaceholder
+                        .aspectRatio(1, contentMode: .fill)
                 }
             }
-            .aspectRatio(1, contentMode: .fill)
             .clipped()
             .clipShape(RoundedRectangle(cornerRadius: TonlyTheme.cornerRadiusSmall))
 

@@ -17,9 +17,15 @@ struct NFTDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     Group {
-                        if nft.displayURL != nil {
-                            AnimatedImageView(url: nft.animationURL, staticFallback: nft.imageURL)
+                        if let animURL = nft.animationURL {
+                            AnimatedImageView(url: animURL, staticFallback: nft.imageURL)
                                 .aspectRatio(1, contentMode: .fit)
+                        } else if let url = nft.imageURL {
+                            AsyncImage(url: url) { image in
+                                image.resizable().scaledToFit()
+                            } placeholder: {
+                                nftPlaceholder
+                            }
                         } else {
                             nftPlaceholder
                         }

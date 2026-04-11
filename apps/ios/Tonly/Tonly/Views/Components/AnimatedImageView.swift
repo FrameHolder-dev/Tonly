@@ -3,29 +3,15 @@ import AVKit
 import WebKit
 
 struct AnimatedImageView: View {
-    let url: URL?
+    let url: URL
     let staticFallback: URL?
 
     var body: some View {
-        if let url = url {
-            let ext = url.pathExtension.lowercased()
-            if ext == "mp4" || ext == "mov" || ext == "m4v" {
-                VideoPlayerView(url: url)
-            } else if ext == "gif" || ext == "webp" {
-                GIFView(url: url)
-            } else {
-                AsyncImage(url: url) { image in
-                    image.resizable().scaledToFill()
-                } placeholder: {
-                    Color.clear
-                }
-            }
-        } else if let fallback = staticFallback {
-            AsyncImage(url: fallback) { image in
-                image.resizable().scaledToFill()
-            } placeholder: {
-                Color.clear
-            }
+        let ext = url.pathExtension.lowercased()
+        if ext == "mp4" || ext == "mov" || ext == "m4v" {
+            VideoPlayerView(url: url)
+        } else {
+            GIFView(url: url)
         }
     }
 }
