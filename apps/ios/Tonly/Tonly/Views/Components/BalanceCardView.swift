@@ -5,10 +5,11 @@ struct BalanceCardView: View {
     let usdBalance: Double
     let address: String
     @State private var copied = false
+    @AppStorage("selectedCurrency") private var currency = "USD"
 
     var body: some View {
         VStack(spacing: 8) {
-            Text(usdBalance.usdFormatted)
+            Text(usdBalance.currencyFormatted(currency))
                 .font(.system(size: 42, weight: .bold, design: .rounded))
                 .foregroundStyle(TonlyTheme.textPrimary)
 

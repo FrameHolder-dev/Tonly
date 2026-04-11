@@ -25,6 +25,47 @@ struct JettonData: Codable {
     }
 }
 
+struct ActivityResponse: Codable {
+    let activity: [ActivityItem]
+}
+
+struct ActivityItem: Codable {
+    let id: String
+    let hash: String
+    let timestamp: Int64
+    let kind: String
+    let status: String
+    let isIncoming: Bool
+    let from: String
+    let to: String
+    let amount: Double
+    let symbol: String
+    let iconURL: String?
+    let comment: String
+
+    enum CodingKeys: String, CodingKey {
+        case id, hash, timestamp, kind, status, from, to, amount, symbol, comment
+        case isIncoming = "is_incoming"
+        case iconURL = "icon_url"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        hash = try c.decode(String.self, forKey: .hash)
+        timestamp = try c.decode(Int64.self, forKey: .timestamp)
+        kind = try c.decode(String.self, forKey: .kind)
+        status = try c.decode(String.self, forKey: .status)
+        isIncoming = try c.decode(Bool.self, forKey: .isIncoming)
+        from = try c.decodeIfPresent(String.self, forKey: .from) ?? ""
+        to = try c.decodeIfPresent(String.self, forKey: .to) ?? ""
+        amount = try c.decode(Double.self, forKey: .amount)
+        symbol = try c.decode(String.self, forKey: .symbol)
+        iconURL = try c.decodeIfPresent(String.self, forKey: .iconURL)
+        comment = try c.decodeIfPresent(String.self, forKey: .comment) ?? ""
+    }
+}
+
 struct RatesResponse: Codable {
     let rates: [String: RateData]?
 }
@@ -152,48 +193,26 @@ final class WalletStore {
         guard let address = apiAddress else { return }
 
         do {
-            let response: TransactionListResponse = try await APIClient.shared.request(
-                .walletTransactions(address: address)
+            let response: ActivityResponse = try await APIClient.shared.request(
+                .walletActivity(address: address)
             )
-            let myAddress = wallet?.address ?? ""
-            let myRaw = wallet?.rawAddress ?? ""
-
-            transactions = response.transactions.compactMap { raw in
-                let hash = raw.transactionId?.hash ?? UUID().uuidString
-
-                if let outMsg = raw.outMsgs?.first, let dest = outMsg.destination, !dest.isEmpty {
-                    let amount = Double.fromNanoTON(outMsg.value ?? "0")
-                    guard amount > 0 else { return nil }
-                    return Transaction(
-                        id: hash,
-                        hash: hash,
-                        timestamp: Date(timeIntervalSince1970: TimeInterval(raw.utime ?? 0)),
-                        from: myAddress,
-                        to: dest,
-                        amount: amount,
-                        fee: .fromNanoTON(raw.fee ?? "0"),
-                        status: .confirmed,
-                        message: outMsg.message
-                    )
-                }
-
-                if let inMsg = raw.inMsg, let src = inMsg.source, !src.isEmpty {
-                    let amount = Double.fromNanoTON(inMsg.value ?? "0")
-                    guard amount > 0 else { return nil }
-                    return Transaction(
-                        id: hash,
-                        hash: hash,
-                        timestamp: Date(timeIntervalSince1970: TimeInterval(raw.utime ?? 0)),
-                        from: src,
-                        to: myAddress,
-                        amount: amount,
-                        fee: .fromNanoTON(raw.fee ?? "0"),
-                        status: .confirmed,
-                        message: inMsg.message
-                    )
-                }
-
-                return nil
+            transactions = response.activity.map { item in
+                var tx = Transaction(
+                    id: item.id,
+                    hash: item.hash,
+                    timestamp: Date(timeIntervalSince1970: TimeInterval(item.timestamp)),
+                    from: item.from,
+                    to: item.to,
+                    amount: item.amount,
+                    fee: 0,
+                    status: item.status == "ok" ? .confirmed : .failed,
+                    message: item.comment.isEmpty ? nil : item.comment
+                )
+                tx.kind = TransactionKind(rawValue: item.kind) ?? .ton
+                tx.symbol = item.symbol
+                tx.iconURL = item.iconURL
+                tx.isIncoming = item.isIncoming
+                return tx
             }
         } catch {
             self.error = "Failed to load transactions"

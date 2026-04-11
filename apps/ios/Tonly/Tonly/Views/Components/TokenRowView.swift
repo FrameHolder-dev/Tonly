@@ -3,6 +3,7 @@ import SwiftUI
 struct TokenRowView: View {
     let token: Token
     var priceChange: Double = 0
+    @AppStorage("selectedCurrency") private var currency = "USD"
 
     var body: some View {
         HStack(spacing: 12) {
@@ -26,7 +27,7 @@ struct TokenRowView: View {
                     .foregroundStyle(TonlyTheme.textPrimary)
 
                 HStack(spacing: 4) {
-                    Text(token.usdPrice > 0 ? "$\(String(format: "%.2f", token.usdPrice))" : token.symbol)
+                    Text(token.usdPrice > 0 ? token.usdPrice.currencyFormatted(currency) : token.symbol)
                         .font(.caption)
                         .foregroundStyle(TonlyTheme.textSecondary)
 
@@ -45,7 +46,7 @@ struct TokenRowView: View {
                     .font(.body.weight(.medium))
                     .foregroundStyle(TonlyTheme.textPrimary)
 
-                Text(token.usdValue.usdFormatted)
+                Text(token.usdValue.currencyFormatted(currency))
                     .font(.caption)
                     .foregroundStyle(TonlyTheme.textSecondary)
             }

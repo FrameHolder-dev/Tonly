@@ -51,6 +51,7 @@ func main() {
 	mux.HandleFunc("GET /api/v1/wallet/{address}/overview", wallet.GetOverview)
 	mux.HandleFunc("GET /api/v1/wallet/{address}/account", wallet.GetAccount)
 	mux.HandleFunc("GET /api/v1/wallet/{address}/transactions", wallet.GetTransactions)
+	mux.HandleFunc("GET /api/v1/wallet/{address}/activity", wallet.GetActivity)
 	mux.HandleFunc("GET /api/v1/wallet/{address}/events", wallet.GetEvents)
 	mux.HandleFunc("GET /api/v1/wallet/{address}/seqno", wallet.GetSeqno)
 

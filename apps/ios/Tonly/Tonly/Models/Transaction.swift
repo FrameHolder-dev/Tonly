@@ -1,5 +1,13 @@
 import Foundation
 
+enum TransactionKind: String, Codable {
+    case ton
+    case jetton
+    case nft
+    case swap
+    case contractExec
+}
+
 struct Transaction: Codable, Identifiable {
     let id: String
     let hash: String
@@ -10,29 +18,31 @@ struct Transaction: Codable, Identifiable {
     let fee: Double
     let status: TransactionStatus
     let message: String?
-
-    var isIncoming: Bool {
-        guard let myAddr = WalletStore.shared.activeAddress else { return false }
-        let dest = to
-        let my = myAddr
-        if dest == my { return true }
-        if dest.count > 6 && my.count > 6 {
-            let destCore = dest.dropFirst(2).dropLast(4)
-            let myCore = my.dropFirst(2).dropLast(4)
-            return destCore == myCore
-        }
-        return false
-    }
+    var kind: TransactionKind = .ton
+    var symbol: String = "TON"
+    var iconURL: String? = nil
+    var isIncoming: Bool = false
 
     var formattedAmount: String {
         let sign = isIncoming ? "+" : "-"
-        return "\(sign)\(amount.tonFormatted) TON"
+        let formatted = String(format: "%.4f", amount).trimmingTrailingZeros()
+        return "\(sign)\(formatted) \(symbol)"
     }
 
     var formattedDate: String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
         return formatter.localizedString(for: timestamp, relativeTo: .now)
+    }
+}
+
+extension String {
+    func trimmingTrailingZeros() -> String {
+        guard contains(".") else { return self }
+        var s = self
+        while s.hasSuffix("0") { s.removeLast() }
+        if s.hasSuffix(".") { s.removeLast() }
+        return s
     }
 }
 

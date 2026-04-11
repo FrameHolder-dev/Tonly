@@ -97,6 +97,30 @@ func (h *Wallet) GetTransactions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *Wallet) GetActivity(w http.ResponseWriter, r *http.Request) {
+	address := r.PathValue("address")
+	if address == "" {
+		writeError(w, http.StatusBadRequest, "address is required")
+		return
+	}
+
+	limit := r.URL.Query().Get("limit")
+	if limit == "" {
+		limit = "25"
+	}
+
+	items, err := h.parser.GetActivity(r.Context(), address, limit)
+	if err != nil {
+		writeError(w, http.StatusBadGateway, "failed to fetch activity")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"address":  address,
+		"activity": items,
+	})
+}
+
 func (h *Wallet) GetEvents(w http.ResponseWriter, r *http.Request) {
 	address := r.PathValue("address")
 	if address == "" {

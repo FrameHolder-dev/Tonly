@@ -37,6 +37,10 @@ extension Endpoint {
         Endpoint(path: "/wallet/\(address)/transactions?limit=\(limit)")
     }
 
+    static func walletActivity(address: String, limit: Int = 25) -> Endpoint {
+        Endpoint(path: "/wallet/\(address)/activity?limit=\(limit)")
+    }
+
     static func walletJettons(address: String) -> Endpoint {
         Endpoint(path: "/wallet/\(address)/jettons")
     }
