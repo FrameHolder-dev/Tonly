@@ -526,10 +526,20 @@ struct SwapView: View {
                         payloadCell = .empty
                     }
 
+                    var stateInitCell: StateInit?
+                    if let initHex = message.jettonWalletStateInit, !initHex.isEmpty,
+                       let data = Data(hexString: initHex) {
+                        let cells = try Cell.fromBoc(src: data)
+                        if let root = cells.first {
+                            stateInitCell = try root.beginParse().loadType() as StateInit
+                        }
+                    }
+
                     let msg = MessageRelaxed.internal(
                         to: destAddress,
                         value: amountValue,
                         bounce: true,
+                        stateInit: stateInitCell,
                         body: payloadCell
                     )
                     swapMessages.append(msg)
