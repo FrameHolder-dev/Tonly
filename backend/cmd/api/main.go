@@ -40,6 +40,7 @@ func main() {
 	push.SetMonitor(monitor)
 	go monitor.Start(context.Background())
 	tonConnect := handler.NewTonConnect()
+	omniston := handler.NewOmniston()
 	wsHub := handler.NewWSHub()
 
 	mux.HandleFunc("GET /health", health.Check)
@@ -74,6 +75,7 @@ func main() {
 
 	mux.HandleFunc("POST /api/v1/swap/simulate", swap.Simulate)
 	mux.HandleFunc("GET /api/v1/swap/assets", swap.GetAssets)
+	mux.HandleFunc("POST /api/v1/swap/quote", omniston.Quote)
 
 	mux.Handle("/ws", wsHub.Handler())
 

@@ -9,6 +9,7 @@ services:
       - subscribers-data:/data
     env_file:
       - .env
+      - .env.secrets
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
       interval: 30s
