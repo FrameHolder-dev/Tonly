@@ -62,6 +62,7 @@ func (h *Send) SendTransaction(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	respBody, _ := io.ReadAll(resp.Body)
+	fmt.Printf("send: status=%d body=%s boc_len=%d\n", resp.StatusCode, string(respBody), len(req.BOC))
 
 	if resp.StatusCode != http.StatusOK {
 		writeError(w, resp.StatusCode, fmt.Sprintf("broadcast failed: %s", string(respBody)))
