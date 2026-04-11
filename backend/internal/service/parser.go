@@ -50,7 +50,7 @@ func (p *Parser) GetWalletOverview(ctx context.Context, address string) (*model.
 		}
 	}
 
-	jettons, err := p.GetJettons(ctx, address)
+	jettons, err := p.GetJettons(ctx, address, "usd")
 	if err != nil {
 		jettons = []model.JettonBalance{}
 	}
@@ -71,30 +71,31 @@ func (p *Parser) GetWalletOverview(ctx context.Context, address string) (*model.
 	}, nil
 }
 
-func (p *Parser) GetJettons(ctx context.Context, address string) ([]model.JettonBalance, error) {
-	data, err := p.api.GetJettons(ctx, address)
+func (p *Parser) GetJettons(ctx context.Context, address string, currency string) ([]model.JettonBalance, error) {
+	if currency == "" {
+		currency = "usd"
+	}
+	data, err := p.api.GetJettons(ctx, address, strings.ToLower(currency))
 	if err != nil {
 		return nil, err
 	}
 
 	var response struct {
 		Balances []struct {
-			Balance  string `json:"balance"`
+			Balance       string `json:"balance"`
 			WalletAddress struct {
 				Address string `json:"address"`
 			} `json:"wallet_address"`
 			Jetton struct {
-				Address    string `json:"address"`
-				Name       string `json:"name"`
-				Symbol     string `json:"symbol"`
-				Decimals   int    `json:"decimals"`
-				Image      string `json:"image"`
+				Address      string `json:"address"`
+				Name         string `json:"name"`
+				Symbol       string `json:"symbol"`
+				Decimals     int    `json:"decimals"`
+				Image        string `json:"image"`
 				Verification string `json:"verification"`
 			} `json:"jetton"`
 			Price struct {
-				Prices struct {
-					USD float64 `json:"USD"`
-				} `json:"prices"`
+				Prices map[string]float64 `json:"prices"`
 			} `json:"price"`
 		} `json:"balances"`
 	}
@@ -103,6 +104,7 @@ func (p *Parser) GetJettons(ctx context.Context, address string) ([]model.Jetton
 		return nil, err
 	}
 
+	currencyUpper := strings.ToUpper(currency)
 	result := make([]model.JettonBalance, 0, len(response.Balances))
 	for _, b := range response.Balances {
 		balance, _ := strconv.ParseFloat(b.Balance, 64)
@@ -111,8 +113,8 @@ func (p *Parser) GetJettons(ctx context.Context, address string) ([]model.Jetton
 			balance = balance / math.Pow(10, float64(decimals))
 		}
 
-		usdPrice := b.Price.Prices.USD
-		usdValue := math.Round(balance*usdPrice*100) / 100
+		price := b.Price.Prices[currencyUpper]
+		value := math.Round(balance*price*100) / 100
 
 		result = append(result, model.JettonBalance{
 			Address:  b.Jetton.Address,
@@ -121,8 +123,8 @@ func (p *Parser) GetJettons(ctx context.Context, address string) ([]model.Jetton
 			Decimals: decimals,
 			Balance:  fmt.Sprintf("%.6f", balance),
 			ImageURL: b.Jetton.Image,
-			USDPrice: usdPrice,
-			USDValue: usdValue,
+			USDPrice: price,
+			USDValue: value,
 			Verified: b.Jetton.Verification == "whitelist",
 		})
 	}

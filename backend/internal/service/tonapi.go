@@ -75,8 +75,12 @@ func (s *TonAPI) GetSeqno(ctx context.Context, address string) (int, error) {
 	return result.Seqno, nil
 }
 
-func (s *TonAPI) GetJettons(ctx context.Context, address string) (json.RawMessage, error) {
-	data, err := s.get(ctx, "/accounts/"+address+"/jettons")
+func (s *TonAPI) GetJettons(ctx context.Context, address string, currencies string) (json.RawMessage, error) {
+	path := "/accounts/" + address + "/jettons"
+	if currencies != "" {
+		path += "?currencies=" + currencies
+	}
+	data, err := s.get(ctx, path)
 	if err != nil {
 		return nil, err
 	}

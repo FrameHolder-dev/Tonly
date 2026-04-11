@@ -23,7 +23,12 @@ func (h *Jettons) GetByAddress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jettons, err := h.parser.GetJettons(r.Context(), address)
+	currency := r.URL.Query().Get("currency")
+	if currency == "" {
+		currency = "usd"
+	}
+
+	jettons, err := h.parser.GetJettons(r.Context(), address, currency)
 	if err != nil {
 		writeError(w, http.StatusBadGateway, "failed to fetch jettons")
 		return

@@ -126,7 +126,11 @@ final class WalletStore {
         await jettonsTask
 
         if let bal = wallet?.balance {
-            wallet?.usdBalance = bal * tonPrice
+            let tonValue = bal * tonPrice
+            let jettonValue = (wallet?.tokens ?? [])
+                .filter { $0.id != "ton" }
+                .reduce(0.0) { $0 + $1.usdValue }
+            wallet?.usdBalance = tonValue + jettonValue
             if let idx = wallet?.tokens.firstIndex(where: { $0.id == "ton" }) {
                 wallet?.tokens[idx].usdPrice = tonPrice
             }
@@ -167,9 +171,10 @@ final class WalletStore {
     }
 
     private func loadJettons(address: String) async {
+        let currency = (UserDefaults.standard.string(forKey: "selectedCurrency") ?? "USD").lowercased()
         do {
             let response: JettonsResponse = try await APIClient.shared.request(
-                .walletJettons(address: address)
+                .walletJettons(address: address, currency: currency)
             )
             let jettonTokens = response.jettons.map { j in
                 Token(
