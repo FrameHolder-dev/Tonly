@@ -147,7 +147,7 @@ struct WalletHomeView: View {
                     SkeletonRow()
                 }
             } else {
-                ForEach(store.wallet?.tokens ?? []) { token in
+                ForEach((store.wallet?.tokens ?? []).filter { $0.id == "ton" || $0.balance > 0 }) { token in
                     TokenRowView(
                         token: token,
                         priceChange: token.id == "ton" ? store.tonPriceChange24h : 0

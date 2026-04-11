@@ -19,99 +19,44 @@ struct AccountSwitcherView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(accounts) { account in
-                    Button {
-                        switchTo(account)
-                    } label: {
-                        HStack(spacing: 12) {
-                            Circle()
-                                .fill(TonlyTheme.accent.opacity(0.15))
-                                .frame(width: 44, height: 44)
-                                .overlay {
-                                    Text(String(account.name.prefix(1)))
-                                        .font(.headline)
-                                        .foregroundStyle(TonlyTheme.accent)
-                                }
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(account.name)
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(TonlyTheme.textPrimary)
-
-                                Text(account.address.shortAddress)
-                                    .font(.caption)
-                                    .foregroundStyle(TonlyTheme.textSecondary)
-                            }
-
-                            Spacer()
-
-                            Button {
-                                editingAccount = account
-                                editName = account.name
-                                HapticService.selection()
-                            } label: {
-                                Image(systemName: "pencil")
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(TonlyTheme.textSecondary)
-                                    .frame(width: 32, height: 32)
-                            }
-
-                            if account.isActive {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(TonlyTheme.accent)
+            ScrollView {
+                VStack(spacing: 8) {
+                    VStack(spacing: 0) {
+                        ForEach(Array(accounts.enumerated()), id: \.element.id) { index, account in
+                            accountRow(account)
+                            if index < accounts.count - 1 {
+                                Divider()
+                                    .background(TonlyTheme.surfaceLight)
+                                    .padding(.leading, 72)
                             }
                         }
                     }
-                    .buttonStyle(.plain)
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) {
-                            accountToDelete = account
-                            showDeleteConfirm = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                    .listRowBackground(TonlyTheme.surface)
+                    .background(TonlyTheme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: TonlyTheme.cornerRadius))
+                    .padding(.horizontal, TonlyTheme.padding)
+                    .padding(.top, 8)
+
+                    addWalletButton
+                        .padding(.horizontal, TonlyTheme.padding)
                 }
-
-                Button {
-                    showAddWallet = true
-                } label: {
-                    HStack(spacing: 12) {
-                        Circle()
-                            .fill(TonlyTheme.surfaceLight)
-                            .frame(width: 44, height: 44)
-                            .overlay {
-                                Image(systemName: "plus")
-                                    .font(.headline)
-                                    .foregroundStyle(TonlyTheme.accent)
-                            }
-
-                        Text("Add Wallet")
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(TonlyTheme.textPrimary)
-
-                        Spacer()
-                    }
-                }
-                .buttonStyle(.plain)
-                .listRowBackground(TonlyTheme.surface)
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
             .background(TonlyTheme.background)
             .navigationTitle("Wallets")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
-                        .foregroundStyle(TonlyTheme.textSecondary)
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundStyle(TonlyTheme.textSecondary)
+                    }
                 }
             }
         }
         .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
         .preferredColorScheme(.dark)
         .onAppear { loadAccounts() }
         .sheet(isPresented: $showAddWallet) {
@@ -159,6 +104,104 @@ struct AccountSwitcherView: View {
             }
             Button("Cancel", role: .cancel) { editingAccount = nil }
         }
+    }
+
+    private func accountRow(_ account: SavedAccount) -> some View {
+        Button {
+            switchTo(account)
+        } label: {
+            HStack(spacing: 12) {
+                Circle()
+                    .fill(TonlyTheme.accent.opacity(0.15))
+                    .frame(width: 40, height: 40)
+                    .overlay {
+                        Text(String(account.name.prefix(1)).uppercased())
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(TonlyTheme.accent)
+                    }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(account.name)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(TonlyTheme.textPrimary)
+                    Text(account.address.shortAddress)
+                        .font(.caption2)
+                        .foregroundStyle(TonlyTheme.textSecondary)
+                }
+
+                Spacer()
+
+                Button {
+                    editingAccount = account
+                    editName = account.name
+                    HapticService.selection()
+                } label: {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 13))
+                        .foregroundStyle(TonlyTheme.textSecondary)
+                        .frame(width: 28, height: 28)
+                }
+                .buttonStyle(.plain)
+
+                if accounts.count > 1 {
+                    Button {
+                        accountToDelete = account
+                        showDeleteConfirm = true
+                        HapticService.selection()
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(.system(size: 13))
+                            .foregroundStyle(TonlyTheme.destructive.opacity(0.8))
+                            .frame(width: 28, height: 28)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                if account.isActive {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(TonlyTheme.accent)
+                        .frame(width: 20)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var addWalletButton: some View {
+        Button {
+            showAddWallet = true
+            HapticService.selection()
+        } label: {
+            HStack(spacing: 12) {
+                Circle()
+                    .fill(TonlyTheme.accent.opacity(0.15))
+                    .frame(width: 40, height: 40)
+                    .overlay {
+                        Image(systemName: "plus")
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(TonlyTheme.accent)
+                    }
+
+                Text("Add Wallet")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(TonlyTheme.textPrimary)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
+                    .foregroundStyle(TonlyTheme.textSecondary)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(TonlyTheme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: TonlyTheme.cornerRadius))
+        }
+        .buttonStyle(.plain)
     }
 
     private func loadAccounts() {
