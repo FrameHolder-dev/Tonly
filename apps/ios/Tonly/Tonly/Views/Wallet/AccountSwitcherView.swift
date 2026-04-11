@@ -17,45 +17,46 @@ struct AccountSwitcherView: View {
         var isActive: Bool
     }
 
+    private var sheetHeight: CGFloat {
+        let header: CGFloat = 48
+        let rowHeight: CGFloat = 62
+        let addButton: CGFloat = 62
+        let padding: CGFloat = 32
+        return header + CGFloat(accounts.count) * rowHeight + addButton + padding
+    }
+
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 8) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(accounts.enumerated()), id: \.element.id) { index, account in
-                            accountRow(account)
-                            if index < accounts.count - 1 {
-                                Divider()
-                                    .background(TonlyTheme.surfaceLight)
-                                    .padding(.leading, 72)
-                            }
+        VStack(spacing: 0) {
+            Text("Wallets")
+                .font(.headline)
+                .foregroundStyle(TonlyTheme.textPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 16)
+                .padding(.bottom, 12)
+
+            VStack(spacing: 8) {
+                VStack(spacing: 0) {
+                    ForEach(Array(accounts.enumerated()), id: \.element.id) { index, account in
+                        accountRow(account)
+                        if index < accounts.count - 1 {
+                            Divider()
+                                .background(TonlyTheme.surfaceLight)
+                                .padding(.leading, 72)
                         }
                     }
-                    .background(TonlyTheme.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: TonlyTheme.cornerRadius))
-                    .padding(.horizontal, TonlyTheme.padding)
-                    .padding(.top, 8)
+                }
+                .background(TonlyTheme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: TonlyTheme.cornerRadius))
 
-                    addWalletButton
-                        .padding(.horizontal, TonlyTheme.padding)
-                }
+                addWalletButton
             }
-            .background(TonlyTheme.background)
-            .navigationTitle("Wallets")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .foregroundStyle(TonlyTheme.textSecondary)
-                    }
-                }
-            }
+            .padding(.horizontal, TonlyTheme.padding)
+
+            Spacer(minLength: 0)
         }
-        .presentationDetents([.medium])
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(TonlyTheme.background)
+        .presentationDetents([.height(sheetHeight)])
         .presentationDragIndicator(.visible)
         .preferredColorScheme(.dark)
         .onAppear { loadAccounts() }
