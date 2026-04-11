@@ -293,25 +293,28 @@ struct SwapView: View {
                             AsyncImage(url: url) { img in
                                 img.resizable().scaledToFit()
                             } placeholder: {
-                                Circle().fill(TonlyTheme.surfaceLight)
+                                Circle().fill(TonlyTheme.surface)
                             }
-                            .frame(width: 28, height: 28)
+                            .frame(width: 22, height: 22)
                             .clipShape(Circle())
                         }
 
                         Text(asset?.symbol ?? "Select")
-                            .font(.body.weight(.semibold))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(TonlyTheme.textPrimary)
+                            .lineLimit(1)
 
                         Image(systemName: "chevron.down")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.system(size: 9, weight: .bold))
                             .foregroundStyle(TonlyTheme.textSecondary)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+                    .padding(.leading, 6)
+                    .padding(.trailing, 10)
+                    .padding(.vertical, 6)
                     .background(TonlyTheme.surfaceLight)
                     .clipShape(Capsule())
                 }
+                .buttonStyle(.plain)
             }
 
             if showBalance {
@@ -326,51 +329,73 @@ struct SwapView: View {
     }
 
     private func assetPicker(onSelect: @escaping (SwapAsset) -> Void) -> some View {
-        NavigationStack {
-            List(assets) { asset in
-                Button {
-                    onSelect(asset)
-                    showFromPicker = false
-                    showToPicker = false
-                    HapticService.selection()
-                } label: {
-                    HStack(spacing: 12) {
-                        AsyncImage(url: asset.iconURL) { img in
-                            img.resizable().scaledToFit()
-                        } placeholder: {
-                            Circle().fill(TonlyTheme.surfaceLight)
+        VStack(spacing: 0) {
+            Text("Select Token")
+                .font(.headline)
+                .foregroundStyle(TonlyTheme.textPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 16)
+                .padding(.bottom, 12)
+
+            ScrollView {
+                VStack(spacing: 0) {
+                    ForEach(Array(assets.enumerated()), id: \.element.id) { index, asset in
+                        Button {
+                            onSelect(asset)
+                            showFromPicker = false
+                            showToPicker = false
+                            HapticService.selection()
+                        } label: {
+                            HStack(spacing: 12) {
+                                AsyncImage(url: asset.iconURL) { img in
+                                    img.resizable().scaledToFit()
+                                } placeholder: {
+                                    Circle().fill(TonlyTheme.surfaceLight)
+                                }
+                                .frame(width: 36, height: 36)
+                                .clipShape(Circle())
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack(spacing: 4) {
+                                        Text(asset.symbol)
+                                            .font(.subheadline.weight(.semibold))
+                                            .foregroundStyle(TonlyTheme.textPrimary)
+                                        if asset.verified {
+                                            Image(systemName: "checkmark.seal.fill")
+                                                .font(.system(size: 11))
+                                                .foregroundStyle(TonlyTheme.accent)
+                                        }
+                                    }
+                                    Text(asset.name)
+                                        .font(.caption2)
+                                        .foregroundStyle(TonlyTheme.textSecondary)
+                                        .lineLimit(1)
+                                }
+
+                                Spacer()
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                            .contentShape(Rectangle())
                         }
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
+                        .buttonStyle(.plain)
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(asset.symbol)
-                                .font(.body.weight(.medium))
-                                .foregroundStyle(TonlyTheme.textPrimary)
-                            Text(asset.name)
-                                .font(.caption)
-                                .foregroundStyle(TonlyTheme.textSecondary)
-                        }
-
-                        Spacer()
-
-                        if asset.verified {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.caption)
-                                .foregroundStyle(TonlyTheme.accent)
+                        if index < assets.count - 1 {
+                            Divider()
+                                .background(TonlyTheme.surfaceLight)
+                                .padding(.leading, 62)
                         }
                     }
                 }
-                .listRowBackground(TonlyTheme.surface)
+                .background(TonlyTheme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: TonlyTheme.cornerRadius))
+                .padding(.horizontal, TonlyTheme.padding)
+                .padding(.bottom, 16)
             }
-            .listStyle(.plain)
-            .background(TonlyTheme.background)
-            .scrollContentBackground(.hidden)
-            .navigationTitle("Select Token")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
         }
-        .presentationDetents([.large])
+        .background(TonlyTheme.background)
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
         .preferredColorScheme(.dark)
     }
 
