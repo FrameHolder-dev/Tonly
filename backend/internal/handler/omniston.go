@@ -155,10 +155,17 @@ func (h *Omniston) fetchQuote(ctx context.Context, req QuoteRequest) ([]byte, er
 		return nil, fmt.Errorf("send: %w", err)
 	}
 
-	deadline := time.Now().Add(15 * time.Second)
-	conn.SetDeadline(deadline)
+	conn.SetDeadline(time.Now().Add(18 * time.Second))
 
-	var ackResp omnistonResp
+	var ackResp struct {
+		JSONRPC string          `json:"jsonrpc"`
+		ID      string          `json:"id"`
+		Result  json.RawMessage `json:"result,omitempty"`
+		Error   *struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		} `json:"error,omitempty"`
+	}
 	if err := websocket.JSON.Receive(conn, &ackResp); err != nil {
 		return nil, fmt.Errorf("receive ack: %w", err)
 	}
@@ -166,20 +173,38 @@ func (h *Omniston) fetchQuote(ctx context.Context, req QuoteRequest) ([]byte, er
 		return nil, fmt.Errorf("ack error: %s", ackResp.Error.Message)
 	}
 
+	var subscriptionID string
+	if err := json.Unmarshal(ackResp.Result, &subscriptionID); err != nil {
+		var wrapped struct {
+			SubscriptionID string `json:"subscription_id"`
+		}
+		if err2 := json.Unmarshal(ackResp.Result, &wrapped); err2 == nil {
+			subscriptionID = wrapped.SubscriptionID
+		}
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
-			return nil, fmt.Errorf("timeout")
+			return nil, fmt.Errorf("timeout waiting for quote")
 		default:
 		}
 
-		var msg omnistonResp
+		var msg struct {
+			Method string `json:"method"`
+			Params struct {
+				SubscriptionID string          `json:"subscription_id"`
+				Result         json.RawMessage `json:"result"`
+			} `json:"params"`
+		}
 		if err := websocket.JSON.Receive(conn, &msg); err != nil {
 			return nil, fmt.Errorf("receive: %w", err)
 		}
 
-		if msg.Method == "quote_updated" && len(msg.Params) > 0 {
-			return msg.Params, nil
+		if msg.Method == "event" && len(msg.Params.Result) > 0 {
+			if subscriptionID == "" || msg.Params.SubscriptionID == subscriptionID {
+				return msg.Params.Result, nil
+			}
 		}
 	}
 }
