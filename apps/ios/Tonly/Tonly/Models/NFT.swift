@@ -21,6 +21,7 @@ struct NFTItem: Codable, Identifiable {
     let name: String
     let description: String?
     let imageURL: URL?
+    let animationURL: URL?
     let collectionName: String?
     let ownerAddress: String
     let contractAddress: String
@@ -30,13 +31,18 @@ struct NFTItem: Codable, Identifiable {
     var isUsedAsTheme: Bool
     var isUsedAsAvatar: Bool
 
+    var displayURL: URL? { animationURL ?? imageURL }
+    var isAnimated: Bool { animationURL != nil }
+
     init(id: String, name: String, description: String? = nil, imageURL: URL? = nil,
-         collectionName: String? = nil, ownerAddress: String, contractAddress: String,
-         nftType: NFTType = .nft, dns: String? = nil, isVerified: Bool = false) {
+         animationURL: URL? = nil, collectionName: String? = nil, ownerAddress: String,
+         contractAddress: String, nftType: NFTType = .nft, dns: String? = nil,
+         isVerified: Bool = false) {
         self.id = id
         self.name = name
         self.description = description
         self.imageURL = imageURL
+        self.animationURL = animationURL
         self.collectionName = collectionName
         self.ownerAddress = ownerAddress
         self.contractAddress = contractAddress

@@ -9,6 +9,7 @@ struct NFTAPIItem: Codable {
     let name: String
     let description: String
     let imageURL: String
+    let animationURL: String?
     let collectionName: String
     let collectionAddress: String
     let verified: Bool
@@ -18,6 +19,7 @@ struct NFTAPIItem: Codable {
     enum CodingKeys: String, CodingKey {
         case address, name, description, verified, dns
         case imageURL = "image_url"
+        case animationURL = "animation_url"
         case collectionName = "collection_name"
         case collectionAddress = "collection_address"
         case nftType = "nft_type"
@@ -110,6 +112,7 @@ struct NFTGalleryView: View {
                     name: item.name,
                     description: item.description,
                     imageURL: item.imageURL.isEmpty ? nil : URL(string: item.imageURL),
+                    animationURL: (item.animationURL ?? "").isEmpty ? nil : URL(string: item.animationURL ?? ""),
                     collectionName: item.collectionName.isEmpty ? nil : item.collectionName,
                     ownerAddress: address,
                     contractAddress: item.address,
@@ -130,12 +133,8 @@ struct NFTCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Group {
-                if let url = nft.imageURL, !url.absoluteString.isEmpty {
-                    AsyncImage(url: url) { image in
-                        image.resizable().scaledToFill()
-                    } placeholder: {
-                        nftPlaceholder
-                    }
+                if nft.displayURL != nil {
+                    AnimatedImageView(url: nft.animationURL, staticFallback: nft.imageURL)
                 } else {
                     nftPlaceholder
                 }

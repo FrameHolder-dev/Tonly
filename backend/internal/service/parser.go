@@ -141,9 +141,11 @@ func (p *Parser) GetNFTs(ctx context.Context, address string) ([]model.NFTItem, 
 			Address  string `json:"address"`
 			DNS      string `json:"dns"`
 			Metadata struct {
-				Name        string `json:"name"`
-				Description string `json:"description"`
-				Image       string `json:"image"`
+				Name         string `json:"name"`
+				Description  string `json:"description"`
+				Image        string `json:"image"`
+				AnimationURL string `json:"animation_url"`
+				Lottie       string `json:"lottie"`
 			} `json:"metadata"`
 			Previews []struct {
 				Resolution string `json:"resolution"`
@@ -189,11 +191,17 @@ func (p *Parser) GetNFTs(ctx context.Context, address string) ([]model.NFTItem, 
 			nftType = "gift"
 		}
 
+		animationURL := n.Metadata.AnimationURL
+		if animationURL == "" {
+			animationURL = n.Metadata.Lottie
+		}
+
 		result = append(result, model.NFTItem{
 			Address:        n.Address,
 			Name:           n.Metadata.Name,
 			Description:    n.Metadata.Description,
 			ImageURL:       imageURL,
+			AnimationURL:   animationURL,
 			CollectionName: collName,
 			CollectionAddr: n.Collection.Address,
 			Verified:       n.Trust == "whitelist",
