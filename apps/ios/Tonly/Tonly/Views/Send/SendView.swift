@@ -27,6 +27,7 @@ struct SendView: View {
     @State private var showTokenPicker = false
     @State private var estimatedFee: Double?
     @State private var feeTask: Task<Void, Never>?
+    @State private var showConfirmation = false
     private let store = WalletStore.shared
 
     var amountValue: Double { Double(amount.replacingOccurrences(of: ",", with: ".")) ?? 0 }
@@ -196,7 +197,7 @@ struct SendView: View {
                 Spacer()
 
                 Button {
-                    Task { await send() }
+                    showConfirmation = true
                 } label: {
                     Group {
                         if isSending {
@@ -248,6 +249,25 @@ struct SendView: View {
         }
         .sheet(isPresented: $showTokenPicker) {
             tokenPicker
+        }
+        .sheet(isPresented: $showConfirmation) {
+            TransferConfirmationView(
+                details: TransferConfirmationDetails(
+                    title: "Confirm Transfer",
+                    amount: "\(String(format: "%.4f", amountValue).trimmingTrailingZeros()) \(selectedToken.symbol)",
+                    recipient: address,
+                    comment: comment.trimmingCharacters(in: .whitespacesAndNewlines),
+                    fee: estimatedFee,
+                    iconURL: selectedToken.iconURL,
+                    iconSymbol: selectedToken.symbol,
+                    action: "Confirm & Send"
+                ),
+                onConfirm: {
+                    showConfirmation = false
+                    await send()
+                },
+                onCancel: { showConfirmation = false }
+            )
         }
     }
 
@@ -308,12 +328,6 @@ struct SendView: View {
     }
 
     private func send() async {
-        let authenticated = await BiometricService.authenticate(reason: "Confirm transaction")
-        guard authenticated else {
-            error = "Authentication failed"
-            return
-        }
-
         isSending = true
         error = nil
 

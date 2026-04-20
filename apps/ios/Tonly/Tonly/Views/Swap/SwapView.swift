@@ -95,6 +95,7 @@ struct SwapView: View {
     @State private var rawQuote: Data?
     @State private var isSimulating = false
     @State private var isSwapping = false
+    @State private var showSwapConfirmation = false
     @State private var showFromPicker = false
     @State private var showToPicker = false
     @State private var error: String?
@@ -204,7 +205,7 @@ struct SwapView: View {
 
                 Button {
                     dismissKeyboard()
-                    performSwap()
+                    showSwapConfirmation = true
                 } label: {
                     Group {
                         if isSwapping {
@@ -261,6 +262,34 @@ struct SwapView: View {
                 debounceSimulate()
             }
         }
+        .sheet(isPresented: $showSwapConfirmation) {
+            swapConfirmationSheet
+        }
+    }
+
+    private var swapConfirmationSheet: some View {
+        let fromSymbol = fromAsset?.symbol ?? ""
+        let toSymbol = toAsset?.symbol ?? ""
+        let bidAmount = "\(fromAmount.trimmingTrailingZeros()) \(fromSymbol)"
+        let askAmount = "\(estimatedReceive) \(toSymbol)"
+        let details = TransferConfirmationDetails(
+            title: "Confirm Swap",
+            amount: "\(bidAmount) → \(askAmount)",
+            recipient: WalletStore.shared.activeAddress ?? "",
+            comment: "via \(simulation?.resolverName ?? "Omniston")",
+            fee: nil,
+            iconURL: fromAsset?.iconURL,
+            iconSymbol: fromSymbol,
+            action: "Confirm Swap"
+        )
+        return TransferConfirmationView(
+            details: details,
+            onConfirm: {
+                showSwapConfirmation = false
+                performSwap()
+            },
+            onCancel: { showSwapConfirmation = false }
+        )
     }
 
     private func swapCard(label: String, asset: SwapAsset?, amount: String, editable: Bool, showBalance: Bool, onSelect: @escaping () -> Void) -> some View {
@@ -463,13 +492,6 @@ struct SwapView: View {
         HapticService.impact()
 
         Task {
-            let auth = await BiometricService.authenticate(reason: "Confirm swap")
-            guard auth else {
-                isSwapping = false
-                error = "Authentication failed"
-                return
-            }
-
             do {
                 let store = WalletStore.shared
                 guard let sourceAddr = store.activeAddress else {
