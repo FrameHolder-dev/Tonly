@@ -87,7 +87,7 @@ struct TokenDetailView: View {
             tokenAction(icon: "arrow.up.arrow.down", title: "Swap") { showSwap = true }
         }
         .padding(.horizontal, TonlyTheme.padding)
-        .sheet(isPresented: $showSend) { SendView() }
+        .sheet(isPresented: $showSend) { SendView(prefillToken: token) }
         .sheet(isPresented: $showReceive) { ReceiveView() }
         .sheet(isPresented: $showSwap) { SwapView() }
     }
