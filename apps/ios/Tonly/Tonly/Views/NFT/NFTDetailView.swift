@@ -202,14 +202,9 @@ struct NFTDetailView: View {
         }
 
         do {
-            let store = WalletStore.shared
-            let seqnoResponse: SeqnoResponse = try await APIClient.shared.request(
-                .walletSeqno(address: store.apiAddress ?? "")
-            )
-
             let nftAddress = try TonSwift.Address.parse(nft.contractAddress)
             let destAddress = try TonSwift.Address.parse(sendAddress)
-            let myAddress = try TonSwift.Address.parse(store.activeAddress ?? "")
+            let myAddress = try TonSwift.Address.parse(WalletStore.shared.activeAddress ?? "")
 
             let forwardPayload = try Builder().store(int: 0, bits: 32).endCell()
 
@@ -231,42 +226,7 @@ struct NFTDetailView: View {
                 body: transferBody
             )
 
-            let keyPair = try TONWalletManager.getKeyPair()
-            let walletId = WalletId(networkGlobalId: -239, workchain: 0, subwalletNumber: 0)
-            let wallet = WalletV5R1(
-                seqno: Int64(seqnoResponse.seqno),
-                workchain: 0,
-                publicKey: keyPair.publicKey.data,
-                walletId: walletId
-            )
-
-            let transferData = WalletTransferData(
-                seqno: UInt64(seqnoResponse.seqno),
-                messages: [msg],
-                sendMode: .walletDefault(),
-                timeout: UInt64(Date().timeIntervalSince1970) + 120
-            )
-
-            let transfer = try wallet.createTransfer(args: transferData)
-            let signer = WalletTransferSecretKeySigner(secretKey: keyPair.privateKey.data)
-            let signature = try transfer.signMessage(signer: signer)
-
-            let bodyBuilder = Builder()
-            let signingCell = try transfer.signingMessage.endCell()
-            try bodyBuilder.store(signingCell.toBuilder())
-            try bodyBuilder.store(data: signature)
-
-            let body = try bodyBuilder.endCell()
-            let stateInit: StateInit? = seqnoResponse.seqno == 0 ? wallet.stateInit : nil
-            let walletAddress = try wallet.address()
-            let extMessage = Message.external(to: walletAddress, stateInit: stateInit, body: body)
-            let extCell = try Builder().store(extMessage).endCell()
-            let boc = try extCell.toBoc().base64EncodedString()
-
-            struct SendResp: Decodable { let hash: String?; let ok: Bool? }
-            let _: SendResp = try await APIClient.shared.request(
-                Endpoint(path: "/send", method: .post, body: ["boc": boc])
-            )
+            try await TransferSigner.signAndBroadcast(messages: [msg])
 
             HapticService.transactionSent()
             sendAddress = ""

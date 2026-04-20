@@ -1,4 +1,6 @@
 import SwiftUI
+import TonSwift
+import BigInt
 
 struct SendView: View {
     var prefillAddress: String = ""
@@ -209,21 +211,27 @@ struct SendView: View {
         error = nil
 
         do {
-            let seqnoResponse: SeqnoResponse = try await APIClient.shared.request(
-                .walletSeqno(address: store.apiAddress ?? "")
-            )
+            let destAddress = try Address.parse(address)
+            let nanoAmount = BigUInt(UInt64(amountValue * 1_000_000_000))
+            let trimmedComment = comment.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            let nanoAmount = TONTransactionBuilder.tonToNano(amountValue)
-            let boc = try TONTransactionBuilder.buildTransfer(
-                to: address,
-                amount: nanoAmount,
-                message: comment.isEmpty ? nil : comment,
-                seqno: Int64(seqnoResponse.seqno)
-            )
+            let message: MessageRelaxed
+            if !trimmedComment.isEmpty {
+                message = try .internal(
+                    to: destAddress,
+                    value: nanoAmount,
+                    bounce: false,
+                    textPayload: trimmedComment
+                )
+            } else {
+                message = .internal(
+                    to: destAddress,
+                    value: nanoAmount,
+                    bounce: false
+                )
+            }
 
-            let _: SendResponse = try await APIClient.shared.request(
-                Endpoint(path: "/send", method: .post, body: ["boc": boc])
-            )
+            try await TransferSigner.signAndBroadcast(messages: [message])
 
             HapticService.transactionSent()
             try? await Task.sleep(for: .seconds(3))

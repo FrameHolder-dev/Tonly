@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -73,6 +74,52 @@ func (s *TonAPI) GetSeqno(ctx context.Context, address string) (int, error) {
 		return 0, err
 	}
 	return result.Seqno, nil
+}
+
+func (s *TonAPI) GetTime(ctx context.Context) (int64, error) {
+	data, err := s.get(ctx, "/liteserver/get_time")
+	if err != nil {
+		return 0, err
+	}
+	var result struct {
+		Time int64 `json:"time"`
+	}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return 0, err
+	}
+	return result.Time, nil
+}
+
+func (s *TonAPI) GetJettonCustomPayload(ctx context.Context, walletAddress, jettonAddress string) (json.RawMessage, error) {
+	path := fmt.Sprintf("/jettons/%s/transfer/%s/payload", jettonAddress, walletAddress)
+	return s.get(ctx, path)
+}
+
+func (s *TonAPI) EmulateMessage(ctx context.Context, boc string) (json.RawMessage, error) {
+	url := s.baseURL + "/wallet/emulate"
+	body := map[string]string{"boc": boc}
+	bodyBytes, _ := json.Marshal(body)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(bodyBytes))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if s.apiKey != "" {
+		req.Header.Set("Authorization", "Bearer "+s.apiKey)
+	}
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("emulate failed: %s", string(data))
+	}
+	return data, nil
 }
 
 func (s *TonAPI) GetJettons(ctx context.Context, address string, currencies string) (json.RawMessage, error) {

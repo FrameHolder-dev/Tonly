@@ -45,6 +45,9 @@ func main() {
 
 	mux.HandleFunc("GET /health", health.Check)
 
+	mux.HandleFunc("GET /api/v1/time", wallet.GetTime)
+	mux.HandleFunc("POST /api/v1/send/emulate", wallet.EmulateTransaction)
+	mux.HandleFunc("GET /api/v1/jetton/{jetton}/payload/{address}", wallet.GetJettonPayload)
 	mux.HandleFunc("GET /api/v1/wallet/generate", wallet.GenerateMnemonic)
 	mux.HandleFunc("POST /api/v1/wallet/entropy", wallet.GenerateEntropy)
 	mux.HandleFunc("GET /api/v1/wallet/{address}", wallet.GetBalance)

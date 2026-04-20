@@ -159,6 +159,54 @@ func (h *Wallet) GetSeqno(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]int{"seqno": seqno})
 }
 
+func (h *Wallet) GetTime(w http.ResponseWriter, r *http.Request) {
+	t, err := h.tonAPI.GetTime(r.Context())
+	if err != nil {
+		writeError(w, http.StatusBadGateway, "failed to fetch time")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]int64{"time": t})
+}
+
+func (h *Wallet) GetJettonPayload(w http.ResponseWriter, r *http.Request) {
+	address := r.PathValue("address")
+	jetton := r.PathValue("jetton")
+	if address == "" || jetton == "" {
+		writeError(w, http.StatusBadRequest, "address and jetton are required")
+		return
+	}
+
+	data, err := h.tonAPI.GetJettonCustomPayload(r.Context(), address, jetton)
+	if err != nil {
+		writeError(w, http.StatusBadGateway, "failed to fetch payload")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+func (h *Wallet) EmulateTransaction(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		BOC string `json:"boc"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.BOC == "" {
+		writeError(w, http.StatusBadRequest, "boc is required")
+		return
+	}
+
+	data, err := h.tonAPI.EmulateMessage(r.Context(), body.BOC)
+	if err != nil {
+		writeError(w, http.StatusBadGateway, err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
 func (h *Wallet) GenerateMnemonic(w http.ResponseWriter, r *http.Request) {
 	result, err := service.GenerateFullWallet()
 	if err != nil {

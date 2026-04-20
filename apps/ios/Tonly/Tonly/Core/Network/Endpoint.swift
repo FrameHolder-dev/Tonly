@@ -76,4 +76,16 @@ extension Endpoint {
     static var swapAssets: Endpoint {
         Endpoint(path: "/swap/assets")
     }
+
+    static var serverTime: Endpoint {
+        Endpoint(path: "/time")
+    }
+
+    static func emulate(boc: String) -> Endpoint {
+        Endpoint(path: "/send/emulate", method: .post, body: ["boc": boc])
+    }
+
+    static func jettonPayload(jetton: String, address: String) -> Endpoint {
+        Endpoint(path: "/jetton/\(jetton)/payload/\(address)")
+    }
 }
