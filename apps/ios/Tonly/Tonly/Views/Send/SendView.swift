@@ -25,6 +25,8 @@ struct SendView: View {
     @State private var showSuccess = false
     @State private var selectedToken: Token = .ton
     @State private var showTokenPicker = false
+    @State private var estimatedFee: Double?
+    @State private var feeTask: Task<Void, Never>?
     private let store = WalletStore.shared
 
     var amountValue: Double { Double(amount.replacingOccurrences(of: ",", with: ".")) ?? 0 }
@@ -169,6 +171,22 @@ struct SendView: View {
                 .background(TonlyTheme.surface)
                 .clipShape(RoundedRectangle(cornerRadius: TonlyTheme.cornerRadiusSmall))
 
+                if let fee = estimatedFee {
+                    HStack {
+                        Text("Fee")
+                            .font(.caption)
+                            .foregroundStyle(TonlyTheme.textSecondary)
+                        Spacer()
+                        Text("~\(String(format: "%.4f", fee).trimmingTrailingZeros()) TON")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(TonlyTheme.textPrimary)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(TonlyTheme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: TonlyTheme.cornerRadiusSmall))
+                }
+
                 if let error {
                     Text(error)
                         .font(.caption)
@@ -219,6 +237,9 @@ struct SendView: View {
                 selectedToken = t
             }
         }
+        .onChange(of: amount) { _, _ in scheduleEmulate() }
+        .onChange(of: address) { _, _ in scheduleEmulate() }
+        .onChange(of: selectedToken.id) { _, _ in scheduleEmulate() }
         .fullScreenCover(isPresented: $showScanner) {
             QRScannerView { scanned in
                 address = scanned
@@ -362,6 +383,58 @@ struct SendView: View {
         } catch let err {
             self.error = "Failed: \(err.localizedDescription)"
             isSending = false
+        }
+    }
+
+    private func scheduleEmulate() {
+        feeTask?.cancel()
+        guard isValid else {
+            estimatedFee = nil
+            return
+        }
+        feeTask = Task {
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
+            await emulateFee()
+        }
+    }
+
+    private func emulateFee() async {
+        do {
+            let destAddress = try Address.parse(address)
+            let trimmedComment = comment.trimmingCharacters(in: .whitespacesAndNewlines)
+            let message: MessageRelaxed
+
+            if selectedToken.id == "ton" {
+                let nanoAmount = BigUInt(UInt64(amountValue * 1_000_000_000))
+                if !trimmedComment.isEmpty {
+                    message = try .internal(to: destAddress, value: nanoAmount, bounce: false, textPayload: trimmedComment)
+                } else {
+                    message = .internal(to: destAddress, value: nanoAmount, bounce: false)
+                }
+            } else {
+                let jettonMaster = try Address.parse(selectedToken.contractAddress)
+                let myAddress = try Address.parse(store.activeAddress ?? "")
+                let multiplier = pow(10.0, Double(selectedToken.decimals))
+                let rawAmount = BigInt(UInt64(amountValue * multiplier))
+                message = try JettonTransferMessage.internalMessage(
+                    jettonAddress: jettonMaster,
+                    amount: rawAmount,
+                    bounce: true,
+                    to: destAddress,
+                    from: myAddress,
+                    comment: trimmedComment.isEmpty ? nil : trimmedComment
+                )
+            }
+
+            let result = try await TransferSigner.emulate(messages: [message])
+            if !Task.isCancelled {
+                estimatedFee = result.estimatedFeeTON
+            }
+        } catch {
+            if !Task.isCancelled {
+                estimatedFee = nil
+            }
         }
     }
 

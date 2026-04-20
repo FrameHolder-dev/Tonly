@@ -130,22 +130,22 @@ enum TransferSigner {
 
 struct EmulateResult: Decodable {
     let event: EmulateEvent?
-    let trace: EmulateTrace?
+
+    var estimatedFeeTON: Double? {
+        guard let fee = event?.fee?.total else { return nil }
+        return Double(fee) / 1_000_000_000
+    }
 }
 
 struct EmulateEvent: Decodable {
-    let fee: Int64?
+    let fee: EmulateFee?
     let extra: Int64?
 }
 
-struct EmulateTrace: Decodable {
-    let transaction: EmulateTxn?
-}
-
-struct EmulateTxn: Decodable {
-    let totalFees: Int64?
-
-    enum CodingKeys: String, CodingKey {
-        case totalFees = "total_fees"
-    }
+struct EmulateFee: Decodable {
+    let total: Int64?
+    let gas: Int64?
+    let rent: Int64?
+    let deposit: Int64?
+    let refund: Int64?
 }
