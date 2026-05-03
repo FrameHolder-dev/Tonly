@@ -4,7 +4,7 @@ services:
     container_name: tonly-api
     restart: unless-stopped
     ports:
-      - "3100:8080"
+      - "127.0.0.1:3100:8080"
     volumes:
       - subscribers-data:/data
     env_file:
